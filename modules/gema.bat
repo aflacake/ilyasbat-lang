@@ -1,3 +1,6 @@
-if "%1"=="gema" (
-    echo %2
-)
+@echo off
+
+shift
+
+for /f "delims=" %%a in ('python helpers\gema.py %*') do set "output=%%a"
+echo %output%
