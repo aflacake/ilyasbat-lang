@@ -1,4 +1,4 @@
-REM kalku.bat
+REM modules/kalku.bat
 
 @echo off
 setlocal enabledelayedexpansion
