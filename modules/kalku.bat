@@ -1,6 +1,6 @@
+@echo off
 REM modules/kalku.bat
 
-@echo off
 setlocal enabledelayedexpansion
 
 set "line=%*"
