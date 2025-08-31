@@ -1,6 +1,8 @@
 @echo off
 REM main.bat
 
+setlocal EnableDelayedExpansion
+
 if exist ".env.bat" call ".env.bat"
 
 if "%~1"=="" (
