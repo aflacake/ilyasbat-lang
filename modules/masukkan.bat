@@ -1,5 +1,15 @@
 REM modules/masukkan.bat
 
+@echo off
+
 if "%1"=="masukkan" (
-    set /p %2=Masukkan nilai: 
+    setlocal enabledelayedexpansion
+
+    set "varname=%2"
+
+    for /f "delims=" %%A in ('python helpers\masukkan.py') do (
+        set "result=%%A"
+    )
+
+    endlocal & set "%varname%=%result%"
 )
