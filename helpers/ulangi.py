@@ -8,15 +8,24 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        n = int(sys.argv[1])
-        cmd = sys.argv[2:]
-        for _ in range(n):
-            result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
+        count = int(sys.argv[1])
+        command = sys.argv[2:]
+
+        for i in range(count):
+            result = subprocess.run(
+                ["cmd", "/c", "main.bat"] + command,
+                capture_output=True,
+                text=True
+            )
+
             if result.stdout.strip():
                 print(result.stdout.strip())
             if result.stderr.strip():
                 print(result.stderr.strip(), file=sys.stderr)
+
             if result.returncode != 0:
                 sys.exit(result.returncode)
-    except:
+
+    except Exception as e:
+        print("Kesalahan:", str(e))
         sys.exit(1)
