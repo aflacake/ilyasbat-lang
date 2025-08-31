@@ -15,8 +15,13 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
 
     if exist "%module_dir%\!cmd!.bat" (
         call "%module_dir%\!cmd!.bat" !args!
+        if errorlevel 1 (
+            echo Terjadi kesalahan saat menjalankan !cmd!, menghentikan eksekusi.
+            exit /b 1
+        )
     ) else (
         echo Perintah !cmd! tidak dikenal
+        exit /b 1
     )
 )
 
