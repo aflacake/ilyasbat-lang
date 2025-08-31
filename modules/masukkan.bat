@@ -1,6 +1,5 @@
-REM modules/masukkan.bat
-
 @echo off
+REM modules/masukkan.bat
 
 if "%1"=="masukkan" (
     setlocal enabledelayedexpansion
