@@ -4,26 +4,29 @@ REM modules/kalku.bat
 setlocal enabledelayedexpansion
 
 set "line=%*"
-for /f "tokens=1,2,3,4,5 delims= " %%a in ("%line%") do (
-    set "var=%%a"
-    set "equal=%%b"
-    set "val1=%%c"
-    set "op=%%d"
-    set "val2=%%e"
+
+set "line_no_space="
+for %%x in (!line!) do (
+    set "line_no_space=!line_no_space!%%x "
 )
 
-if "!equal!" NEQ "=" (
-    echo Format salah. Gunakan: var = nilai1 op nilai2
+for /f "tokens=1,* delims==" %%a in ("!line_no_space!") do (
+    set "var=%%a"
+    set "expr=%%b"
+)
+
+if not defined expr (
+    echo Format salah. Gunakan: variabel = ekspresi
     endlocal & exit /b 1
 )
 
 set "result="
-for /f "delims=" %%r in ('python helpers\kalku.py !val1! !op! !val2! 2^>nul') do (
+for /f "delims=" %%r in ('python helpers\kalku.py !expr! 2^>nul') do (
     set "result=%%r"
 )
 
 if not defined result (
-    echo Terjadi kesalahan saat menjalankan kalkulasi.
+    echo Terjadi kesalahan saat kalkulasi.
     endlocal & exit /b 1
 )
 
