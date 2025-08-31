@@ -1,6 +1,5 @@
-REM modules/menyimpan.bat
-
 @echo off
+REM modules/menyimpan.bat
 
 if "%1"=="menyimpan" (
     setlocal enabledelayedexpansion
