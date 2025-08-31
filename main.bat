@@ -3,6 +3,8 @@ REM main.bat
 
 setlocal enabledelayedexpansion
 
+if exist ".env.bat" call ".env.bat"
+
 if "%~1"=="" (
     echo Tidak ada file .ibat yang diberikan.
     echo Contoh: main.bat skrip.ibat
