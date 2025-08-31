@@ -1,6 +1,5 @@
-REM modules/impor.bat
-
 @echo off
+REM modules/impor.bat
 
 if "%~1"=="" (
     echo Kesalahan: Nama file modul tidak diberikan.
