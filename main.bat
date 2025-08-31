@@ -53,3 +53,5 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         goto !next_label!
     )
 )
+
+set > .env.bat
