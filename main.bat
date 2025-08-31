@@ -29,7 +29,7 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         REM Tampilkan keluaran
         if defined output (
             echo !output!
-            set "output="
+            set "keluaran="
         )
 
     ) else (
