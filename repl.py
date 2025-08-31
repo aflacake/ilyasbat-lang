@@ -10,9 +10,6 @@ def run_ibat(code_lines):
     ENV_FILE = ".env.bat"
 
     with open(TMP_FILE, "w", encoding="utf-8") as f:
-        if os.path.exists(ENV_FILE):
-            f.write(f"call {ENV_FILE}\n")
-
         for line in code_lines:
             f.write(line + "\n")
 
