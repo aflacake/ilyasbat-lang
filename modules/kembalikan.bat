@@ -1,6 +1,5 @@
-REM modules/kembalikan.bat
-
 @echo off
+REM modules/kembalikan.bat
 
 if "%1"=="kembalikan" (
     setlocal enabledelayedexpansion
