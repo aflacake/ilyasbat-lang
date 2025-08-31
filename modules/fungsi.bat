@@ -3,18 +3,14 @@ REM modules/fungsi.bat
 
 setlocal enabledelayedexpansion
 
-set "first=%1"
-set "second=%2"
-
-REM -----------------------------
-REM DEFINISI FUNGSI
-REM -----------------------------
-if /i "!first!"=="fungsi" (
-    set "func_name=%second%"
+REM ---------------------------
+REM DETEKSI MODE DEFINISI
+REM ---------------------------
+if /i "%1"=="fungsi" (
+    set "func_name=%2"
     shift
     shift
 
-    REM Ambil semua parameter
     set "params="
     :getparams
     if not "%1"=="" (
@@ -24,39 +20,50 @@ if /i "!first!"=="fungsi" (
     )
 
     echo [DEF] Fungsi: !func_name! Params:!params!
-    echo Ketik isi fungsi. Akhiri dengan "selesai"
-
     call :captureFunction | python helpers\fungsi.py tulis !func_name! !params!
     endlocal & exit /b 0
 )
 
-REM -----------------------------
-REM PEMANGGILAN FUNGSI
-REM -----------------------------
-set "func_name=%first%"
+REM ---------------------------
+REM MODE PEMANGGILAN FUNGSI
+REM ---------------------------
+set "func_name=%1"
 shift
 
-REM Tangkap semua argumen
 set "args="
-:collectArgs
-if not "%1"=="" (
-    set "args=!args! %1"
+set "return_to="
+:parseargs
+if "%1"=="" goto :run
+if "%1"==">" (
     shift
-    goto :collectArgs
+    set "return_to=%1"
+    shift
+    goto :parseargs
+)
+set "args=!args! %1"
+shift
+goto :parseargs
+
+:run
+REM Ambil isi fungsi sebagai skrip
+set "output="
+for /f "delims=" %%x in ('python helpers\fungsi.py panggil %func_name% !args! 2^>nul') do (
+    call main.bat %%x >> .temp_result.txt
 )
 
-REM Dapatkan isi fungsi dari Python
-for /f "delims=" %%x in ('python helpers\fungsi.py panggil !func_name! !args! 2^>nul') do (
-    call main.bat %%x
+REM Tangkap return (jika ada)
+if defined return_to (
+    for /f "delims=" %%r in (.temp_result.txt) do (
+        set "last_line=%%r"
+    )
+    set "%return_to%=%last_line%"
+    del .temp_result.txt >nul 2>&1
+) else (
+    type .temp_result.txt
+    del .temp_result.txt >nul 2>&1
 )
 
-if errorlevel 1 (
-    echo Terjadi kesalahan saat memanggil fungsi !func_name!
-    endlocal & exit /b 1
-)
-
-endlocal
-exit /b 0
+endlocal & exit /b 0
 
 :captureFunction
 set "line="
@@ -64,4 +71,4 @@ set "line="
 set /p "line=> "
 echo %line%
 if /i "%line%"=="selesai" goto :eof
-goto inputLoop
+goto :inputLoop
