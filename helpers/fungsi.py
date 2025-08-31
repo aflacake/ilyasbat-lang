@@ -33,15 +33,15 @@ def panggil_fungsi(nama, arg_values):
     for name, val in zip(arg_names, arg_values):
         print(f"set {name}={val}")
 
-    for line in lines[1:]:
-        stripped = line.strip()
-        if stripped.lower().startswith("kembalikan"):
-            parts = stripped.split()
-            if len(parts) == 2:
-                print(f"echo !{parts[1]}!")
-                print(f"exit")
-        else:
-            print(stripped)
+        for line in lines[1:]:
+            stripped = line.strip()
+            if stripped.lower().startswith("kembalikan"):
+                parts = stripped.split()
+                if len(parts) == 2:
+                    print(f"echo !{parts[1]}!")
+                    print(f"exit")
+            else:
+                print(stripped)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
