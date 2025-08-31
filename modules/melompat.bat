@@ -1,6 +1,5 @@
-REM modules/melompat.bat
-
 @echo off
+REM modules/melompat.bat
 
 if "%1"=="melompat" (
     setlocal enabledelayedexpansion
