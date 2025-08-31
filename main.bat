@@ -15,7 +15,8 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
     )
 
     if exist "%module_dir%\!cmd!.bat" (
-        REM Jalankan modul dan tangkap output ke variabel
+        set "output="
+
         for /f "usebackq delims=" %%O in (`call "%module_dir%\!cmd!.bat" !args!`) do (
             set "output=%%O"
         )
@@ -29,7 +30,8 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         REM Tampilkan keluaran
         if defined output (
             echo !output!
-            set "keluaran="
+            REM Simpan hasil untuk digunakan di baris lain
+            set "hasil=!output!"
         )
 
     ) else (
@@ -39,7 +41,7 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
 
     REM melompat
     if defined next_label (
-        goto %next_label%
+        goto !next_label!
     )
 )
 
