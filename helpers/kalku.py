@@ -3,22 +3,20 @@
 import sys
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("0")
+    if len(sys.argv) < 2:
+        print("Kesalahan")
         sys.exit(1)
 
+    expr = " ".join(sys.argv[1:])
+
     try:
-        a = int(sys.argv[1])
-        op = sys.argv[2]
-        b = int(sys.argv[3])
+        allowed_chars = "0123456789+-*/(). "
+        if any(c not in allowed_chars for c in expr):
+            print("Kesalahan")
+            sys.exit(1)
 
-        result = {
-            '+': a + b,
-            '-': a - b,
-            '*': a * b,
-            '/': a // b if b != 0 else 'Err'
-        }.get(op, "Err")
-
+        result = eval(expr, {"__builtins__": None}, {})
         print(result)
-    except:
-        print("Err")
+    except Exception:
+        print("Kesalahan")
+        sys.exit(1)
