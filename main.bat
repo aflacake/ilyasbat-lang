@@ -1,8 +1,6 @@
 @echo off
 REM main.bat
 
-setlocal enabledelayedexpansion
-
 if exist ".env.bat" call ".env.bat"
 
 if "%~1"=="" (
@@ -53,5 +51,3 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         goto !next_label!
     )
 )
-
-endlocal
