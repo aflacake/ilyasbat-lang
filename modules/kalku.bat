@@ -20,8 +20,24 @@ if not defined expr (
     endlocal & exit /b 1
 )
 
+REM --------- Substitusi variabel di dalam ekspresi ----------
+set "evaluated_expr="
+for %%t in (!expr!) do (
+    set "token=%%t"
+    call set "value=%%%token%%%"
+    if defined value (
+        REM jika token adalah variabel, ganti dengan nilainya
+        set "evaluated_expr=!evaluated_expr!!value! "
+    ) else (
+        REM bukan variabel, biarkan tetap
+        set "evaluated_expr=!evaluated_expr!%%t "
+    )
+)
+
+REM ----------------------------------------------------------
+
 set "result="
-for /f "delims=" %%r in ('python helpers\kalku.py !expr! 2^>nul') do (
+for /f "delims=" %%r in ('python helpers\kalku.py !evaluated_expr! 2^>nul') do (
     set "result=%%r"
 )
 
