@@ -1,3 +1,5 @@
+REM gema.bat
+
 @echo off
 
 shift
