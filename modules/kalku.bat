@@ -12,6 +12,19 @@ for /f "tokens=1,2,3,4,5 delims= " %%a in ("%line%") do (
     set "val2=%%e"
 )
 
-for /f "delims=" %%r in ('python helpers\kalku.py !val1! !op! !val2!') do (
-    endlocal & set "%var%=%%r"
+if "!equal!" NEQ "=" (
+    echo Format salah. Gunakan: var = val1 op val2
+    endlocal & exit /b 1
 )
+
+set "result="
+for /f "delims=" %%r in ('python helpers\kalku.py !val1! !op! !val2! 2^>nul') do (
+    set "result=%%r"
+)
+
+if not defined result (
+    echo Terjadi kesalahan saat menjalankan kalkulasi.
+    endlocal & exit /b 1
+)
+
+endlocal & set "%var%=%result%"
