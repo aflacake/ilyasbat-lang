@@ -13,7 +13,7 @@ for /f "tokens=1,2,3,4,5 delims= " %%a in ("%line%") do (
 )
 
 if "!equal!" NEQ "=" (
-    echo Format salah. Gunakan: var = val1 op val2
+    echo Format salah. Gunakan: var = nilai1 op nilai2
     endlocal & exit /b 1
 )
 
