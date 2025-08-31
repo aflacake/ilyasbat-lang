@@ -1,6 +1,5 @@
-REM modules/gema.bat
-
 @echo off
+REM modules/gema.bat
 
 shift
 
