@@ -3,8 +3,19 @@ REM main.bat
 
 setlocal enabledelayedexpansion
 
-set "source_file=program.ibat"
+if "%~1"=="" (
+    echo Tidak ada file .ibat yang diberikan.
+    echo Contoh: main.bat skrip.ibat
+    exit /b 1
+)
+
+set "source_file=%~1"
 set "module_dir=modules"
+
+if not exist "%source_file%" (
+    echo File "%source_file%" tidak ditemukan.
+    exit /b 1
+)
 
 for /f "usebackq delims=" %%A in ("%source_file%") do (
     set "line=%%A"
@@ -16,26 +27,22 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
 
     if exist "%module_dir%\!cmd!.bat" (
         set "output="
-
         for /f "usebackq delims=" %%O in (`call "%module_dir%\!cmd!.bat" !args!`) do (
             set "output=%%O"
         )
 
-        REM Tangani errorlevel
         if errorlevel 1 (
             echo Terjadi kesalahan saat menjalankan !cmd!
             exit /b 1
         )
 
-        REM Tampilkan keluaran
         if defined output (
             echo !output!
-            REM Simpan hasil untuk digunakan di baris lain
             set "hasil=!output!"
         )
 
     ) else (
-        echo Perintah !cmd! tidak dikenal
+        echo Perintah '!cmd!' tidak dikenal
         exit /b 1
     )
 
