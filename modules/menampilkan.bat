@@ -1,4 +1,4 @@
-REM menampilkan.bat
+REM modules/menampilkan.bat
 
 @echo off
 echo %*
