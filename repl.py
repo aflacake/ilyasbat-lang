@@ -13,8 +13,6 @@ def run_ibat(code_lines):
         for line in code_lines:
             f.write(line + "\n")
 
-        f.write("set > .env.bat\n")
-
     result = subprocess.run(["cmd", "/c", "main.bat", TMP_FILE], capture_output=True, text=True)
 
     output = result.stdout.strip()
