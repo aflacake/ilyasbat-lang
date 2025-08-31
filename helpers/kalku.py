@@ -33,6 +33,7 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         result = eval(raw_expr, {"__builtins__": None}, {})
+        print(round(float(result), 2))
         print(result)
 
     except Exception:
