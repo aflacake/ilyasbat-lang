@@ -1,4 +1,4 @@
-REM gema.bat
+REM modules/gema.bat
 
 @echo off
 
