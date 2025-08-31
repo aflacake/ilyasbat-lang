@@ -23,6 +23,11 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         echo Perintah !cmd! tidak dikenal
         exit /b 1
     )
+
+    REM melompat
+    if defined next_label (
+        goto %next_label%
+    )
 )
 
 endlocal
