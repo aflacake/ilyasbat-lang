@@ -45,4 +45,15 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
     )
 )
 
-endlocal & set > .env.bat
+endlocal & (
+    setlocal enabledelayedexpansion
+    > .env.bat (
+        for /f "tokens=1* delims==" %%V in ('set') do (
+            echo %%V| findstr /r "^[a-z][a-zA-Z0-9_]*$" >nul
+            if !errorlevel! == 0 (
+                echo set %%V=%%W
+            )
+        )
+    )
+    endlocal
+)
