@@ -29,9 +29,12 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
 
     if exist "%module_dir%\!cmd!.bat" (
         set "output="
+        echo [DEBUG] Mulai loop output modul: !cmd! !args!
         for /f "usebackq delims=" %%O in (`call "%module_dir%\!cmd!.bat" !args!`) do (
+            echo [DEBUG] Baris output: %%O
             set "output=%%O"
         )
+        echo [DEBUG] Selesai loop output, hasil akhir: !output!
 
         if errorlevel 1 (
             echo Terjadi kesalahan saat menjalankan !cmd!
@@ -39,8 +42,10 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
         )
 
         if defined output (
-            echo !output!
+            echo [HASIL] !output!
             set "hasil=!output!"
+        ) else (
+            echo [PERINGATAN] Modul !cmd! tidak menghasilkan output
         )
 
     ) else (
