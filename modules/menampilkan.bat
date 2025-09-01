@@ -1,10 +1,7 @@
 @echo off
 REM modules/menampilkan.bat
 
+setlocal EnableDelayedExpansion
 set var=%1
-call set val=%%^%var%%%
-if not defined val (
-    echo [!%var%! tidak ditemukan]
-) else (
-    echo %val%
-)
+
+python helpers\menampilkan.py %var%
