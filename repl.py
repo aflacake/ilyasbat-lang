@@ -1,28 +1,41 @@
-# repl.py
-
 import os
 import subprocess
 
 TMP_FILE = ".tmp_repl.ibat"
 
-def run_ibat(code_lines):
-    TMP_FILE = ".tmp_repl.ibat"
-    ENV_FILE = ".env.bat"
+env = {}
 
-    with open(TMP_FILE, "w", encoding="utf-8") as f:
-        for line in code_lines:
-            f.write(line + "\n")
+def run_module(cmd, args):
+    if cmd == "kalku":
+        return kalku_handler(args)
+    elif cmd == "menampilkan":
+        return tampilkan_handler(args)
+    else:
+        print(f"[Perintah tidak dikenal: {cmd}]")
+        return None
 
-    result = subprocess.run(["cmd", "/c", "main.bat", TMP_FILE], capture_output=True, text=True)
+def kalku_handler(line):
+    full_expr = " ".join(line)
+    from helpers.kalku import kalkulasi
 
-    output = result.stdout.strip()
-    if output:
-        print(output)
-    err = result.stderr.strip()
-    if err:
-        print(f"[stderr] {err}")
+    var, result = kalkulasi(full_expr, env)
+    if var is None:
+        print("[Kalkulasi gagal]")
+        return
 
-    os.remove(TMP_FILE)
+    env[var] = result
+    print(f"[DEBUG] {var} = {result}")
+
+def tampilkan_handler(args):
+    if not args:
+        print("[Tidak ada argumen untuk menampilkan]")
+        return
+
+    key = args[0]
+    if key in env:
+        print(env[key])
+    else:
+        print(f"[{key} tidak ditemukan]")
 
 def main():
     print("== IlyasBat Mode REPL ==")
@@ -41,23 +54,24 @@ def main():
             break
 
         if inp.lower() == "keluar":
-            print("Keluar!")
             break
         elif inp.lower() == "reset":
             buffer.clear()
             print("[buffer dikosongkan]")
         elif inp.lower() == "lihat variabel":
-            if os.path.exists(".env.bat"):
-                with open(".env.bat", encoding="utf-8") as f:
-                    for line in f:
-                        print(line.strip())
+            if env:
+                for k, v in env.items():
+                    print(f"{k} = {v}")
             else:
                 print("[belum ada variabel]")
         elif inp.lower() == "jalan":
-            if buffer:
-                run_ibat(buffer)
-            else:
-                print("[buffer kosong]")
+            for line in buffer:
+                parts = line.strip().split()
+                if not parts:
+                    continue
+                cmd = parts[0]
+                args = parts[1:]
+                run_module(cmd, args)
         elif inp == "":
             continue
         else:
