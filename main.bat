@@ -59,4 +59,4 @@ for /f "usebackq delims=" %%A in ("%source_file%") do (
     )
 )
 
-set > .env.bat
+endlocal & set > .env.bat
