@@ -2,6 +2,10 @@
 REM modules/menampilkan.bat
 
 setlocal EnableDelayedExpansion
-set var=%1
 
-python helpers\menampilkan.py %var%
+if exist ".env.bat" call ".env.bat"
+
+set var=%1
+python helpers\menampilkan.py !var!
+
+endlocal
