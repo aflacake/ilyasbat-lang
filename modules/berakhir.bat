@@ -1,3 +1,4 @@
+@echo off
 REM modules/berakhir.bat
 
 if "%1"=="berakhir" (
