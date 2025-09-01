@@ -23,4 +23,8 @@ REM simpan dulu nilai var dan result ke variabel sementara
 set "varname=%var%"
 set "resvalue=%result%"
 
-endlocal & set "%varname%=%resvalue%"
+REM keluarkan variabel dari setlocal
+(
+    endlocal
+    set "%varname%=%resvalue%"
+)
