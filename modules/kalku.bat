@@ -19,5 +19,8 @@ if not defined result (
     endlocal & exit /b 1
 )
 
-endlocal & set "%var%=%result%"
+REM simpan dulu nilai var dan result ke variabel sementara
+set "varname=%var%"
+set "resvalue=%result%"
 
+endlocal & set "%varname%=%resvalue%"
