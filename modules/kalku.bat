@@ -20,3 +20,4 @@ if not defined result (
 )
 
 endlocal & set "%var%=%result%"
+
