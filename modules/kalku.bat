@@ -5,12 +5,15 @@ setlocal enabledelayedexpansion
 
 set "line=%*"
 
+REM Hapus "kalku " di depan supaya ambil expression yang benar
+set "expr=!line:kalku =!"
+
 set "result="
-for /f "delims=" %%r in ('python helpers\kalku.py !line! 2^>nul') do (
+for /f "delims=" %%r in ('python helpers\kalku.py !expr! 2^>nul') do (
     set "result=%%r"
 )
 
-for /f "tokens=1 delims==" %%a in ("!line!") do (
+for /f "tokens=1 delims==" %%a in ("!expr!") do (
     set "var=%%a"
 )
 
@@ -19,12 +22,12 @@ if not defined result (
     endlocal & exit /b 1
 )
 
-REM simpan dulu nilai var dan result ke variabel sementara
 set "varname=%var%"
 set "resvalue=%result%"
 
-REM keluarkan variabel dari setlocal
 (
     endlocal
     set "%varname%=%resvalue%"
 )
+
+echo [DEBUG] Set environment: %varname%=%resvalue%
