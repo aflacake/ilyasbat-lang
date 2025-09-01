@@ -1,14 +1,10 @@
 @echo off
-REM modules/mengembalikan.bat
+REM modules/menampilkan.bat
 
-if "%1"=="mengembalikan" (
-    setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
 
-    set "key=%2"
+set var=%1
 
-    for /f "delims=" %%A in ('python helpers\mengembalikan.py "!key!"') do (
-        set "result=%%A"
-    )
-
-    endlocal & set "hasil=%result%"
+for /f "delims=" %%A in ('python helpers\menampilkan.py %var% 2^>nul') do (
+    echo %%A
 )
