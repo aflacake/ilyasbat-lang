@@ -5,7 +5,9 @@ setlocal EnableDelayedExpansion
 
 if exist ".env.bat" call ".env.bat"
 
-set var=%1
-python helpers\menampilkan.py !var!
+set "args=%*"
+
+python helpers\menampilkan.py "%args%"
 
 endlocal
+
