@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from helpers.menampilkan import menampilkan_handler # <-- ini kan masih ada, jadi gimana? kitakan sudah melakukannya dengan bat
+from helpers.menampilkan import menampilkan_handler
 
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
