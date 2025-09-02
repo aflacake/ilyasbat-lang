@@ -2,6 +2,7 @@
 
 import sys
 import os
+import subprocess
 
 CACHE_DIR = "cache"
 
@@ -11,7 +12,6 @@ def tulis_fungsi(nama, args, lines):
     with open(path, "w", encoding="utf-8") as f:
         f.write("#ARGS " + " ".join(args) + "\n")
         f.writelines(line if line.endswith("\n") else line + "\n" for line in lines)
-
     print(f"[Fungsi '{nama}' berhasil disimpan ke {path}]")
 
 def panggil_fungsi(nama, arg_values):
@@ -32,19 +32,53 @@ def panggil_fungsi(nama, arg_values):
         print("Jumlah argumen tidak sesuai.")
         sys.exit(1)
 
-    print("setlocal EnableDelayedExpansion")
-    for name, val in zip(arg_names, arg_values):
-        print(f"set {name}={val}")
+    env = dict(zip(arg_names, arg_values))
 
-    for line in lines[1:]:
-        stripped = line.strip()
-        if stripped.lower().startswith("kembalikan"):
-            parts = stripped.split()
+    return execute_fungsi(lines[1:], env)
+
+def execute_fungsi(lines, env):
+    """
+    Eksekusi fungsi: 
+    - lines: list baris perintah fungsi
+    - env: dictionary variabel nama -> nilai
+    Return nilai dari perintah 'kembalikan'
+    """
+    return_value = None
+
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.lower().startswith("kembalikan"):
+            parts = line.split(maxsplit=1)
             if len(parts) == 2:
-                print(f"echo __RETURN__=!{parts[1]}!")
-                print("goto :eof")
+                varname = parts[1].strip()
+                return_value = env.get(varname, None)
+            break
         else:
-            print(stripped)
+            parts = line.split()
+            if not parts:
+                continue
+            cmd = parts[0].lower()
+            args = parts[1:]
+            if cmd == "tambah" and len(args) == 2:
+                var = args[0]
+                try:
+                    val = float(args[1])
+                except:
+                    val = env.get(args[1], 0)
+                env[var] = float(env.get(var,0)) + val
+            elif cmd == "kurang" and len(args) == 2:
+                var = args[0]
+                try:
+                    val = float(args[1])
+                except:
+                    val = env.get(args[1], 0)
+                env[var] = float(env.get(var,0)) - val
+            else:
+                pass
+
+    return return_value
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -64,7 +98,9 @@ if __name__ == "__main__":
 
     elif mode == "panggil":
         arg_values = sys.argv[3:]
-        panggil_fungsi(name, arg_values)
+        retval = panggil_fungsi(name, arg_values)
+        if retval is not None:
+            print(f"__RETURN__={retval}")
 
     else:
         sys.exit(1)
