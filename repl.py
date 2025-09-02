@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from helpers.menampilkan import menampilkan_handler
+from helpers.menampilkan import menampilkan_handler # <-- ini kan masih ada, jadi gimana? kitakan sudah melakukannya dengan bat
 
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
@@ -17,13 +17,27 @@ in_jika_mode = False
 jika_buffer = []
 jika_condition = []
 
+def run_batch_module(name, args):
+    module_path = os.path.join("modules", f"{name}.bat")
+    if not os.path.exists(module_path):
+        print(f"[Modul tidak ditemukan: {module_path}]")
+        return
+
+    try:
+        subprocess.run(
+            ["cmd", "/c", module_path] + args,
+            check=True
+        )
+    except subprocess.CalledProcessError:
+        print(f"[Gagal menjalankan modul: {name}]")
+
 def run_module(cmd, args):
     global in_fungsi_mode, in_jika_mode
 
     if cmd == "kalku":
         return kalku_handler(args)
     elif cmd == "menampilkan":
-        return menampilkan_handler(env, args)
+        return run_batch_module("menampilkan", args)
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
