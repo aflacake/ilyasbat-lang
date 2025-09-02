@@ -21,10 +21,14 @@ def run_batch_module(name, args):
         print(f"[Modul tidak ditemukan: {module_path}]")
         return
 
+    env_copy = os.environ.copy()
+    env_copy.update({k: str(v) for k, v in env.items()})
+
     try:
         subprocess.run(
             ["cmd", "/c", module_path] + args,
-            check=True
+            check=True,
+            env=env_copy
         )
     except subprocess.CalledProcessError:
         print(f"[Gagal menjalankan modul: {name}]")
