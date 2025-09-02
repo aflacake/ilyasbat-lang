@@ -40,8 +40,9 @@ def panggil_fungsi(nama, arg_values):
             if stripped.lower().startswith("kembalikan"):
                 parts = stripped.split()
                 if len(parts) == 2:
-                    print(f"echo !{parts[1]}!")
-                    print(f"exit")
+                    print(f"echo __return__=!{parts[1]}!")
+                    print("exit")
+
             else:
                 print(stripped)
 
