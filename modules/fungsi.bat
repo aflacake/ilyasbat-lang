@@ -46,10 +46,10 @@ goto :parseargs
 
 :run
 REM Ambil isi fungsi sebagai skrip
-set "output="
-for /f "delims=" %%x in ('python helpers\fungsi.py panggil %func_name% !args! 2^>nul') do (
-    call main.bat %%x >> .temp_result.txt
-)
+python helpers\fungsi.py panggil %func_name% !args! > .temp_script.bat 2>nul
+
+call .temp_script.bat > .temp_result.txt 2>&1
+del .temp_script.bat
 
 REM Tangkap return (jika ada)
 if defined return_to (
