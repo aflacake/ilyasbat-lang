@@ -10,7 +10,9 @@ def tulis_fungsi(nama, args, lines):
     path = os.path.join(CACHE_DIR, nama + ".ibat")
     with open(path, "w", encoding="utf-8") as f:
         f.write("#ARGS " + " ".join(args) + "\n")
-        f.writelines(lines)
+        f.writelines(line if line.endswith("\n") else line + "\n" for line in lines)
+
+    print(f"[Fungsi '{nama}' berhasil disimpan ke {path}]")
 
 def panggil_fungsi(nama, arg_values):
     path = os.path.join(CACHE_DIR, nama + ".ibat")
