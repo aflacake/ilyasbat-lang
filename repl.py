@@ -1,3 +1,5 @@
+# repl.py
+
 import os
 import subprocess
 
@@ -12,6 +14,8 @@ def run_module(cmd, args):
         return tampilkan_handler(args)
     elif cmd == "berakhir":
         return berakhir_handler(args)
+    elif cmd == "tulis":
+        return tulis_handler(args)
     else:
         print(f"[Perintah tidak dikenal: {cmd}]")
         return None
@@ -41,6 +45,10 @@ def tampilkan_handler(args):
 def berakhir_handler(args):
     from helpers.berakhir import berakhir
     berakhir()
+
+def tulis_handler(args):
+    from helpers.tulis import tulis
+    tulis(args)
 
 def main():
     print("== IlyasBat Mode REPL ==")
