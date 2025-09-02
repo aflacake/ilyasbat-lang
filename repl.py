@@ -21,7 +21,8 @@ def run_module(cmd, args):
     if cmd == "kalku":
         return kalku_handler(args)
     elif cmd == "menampilkan":
-        return tampilkan_handler(args)
+        full_arg = " ".join(args)
+        return tampilkan_handler([full_arg])
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
