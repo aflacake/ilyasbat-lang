@@ -4,8 +4,12 @@ import os
 import subprocess
 
 TMP_FILE = ".tmp_repl.ibat"
-
 env = {}
+
+in_fungsi_mode = False
+fungsi_buffer = []
+fungsi_name = None
+fungsi_args = []
 
 def run_module(cmd, args):
     if cmd == "kalku":
@@ -16,7 +20,15 @@ def run_module(cmd, args):
         return berakhir_handler(args)
     elif cmd == "tulis":
         return tulis_handler(args)
+    elif cmd == "fungsi":
+        return fungsi_start(args)
+    elif cmd == "kembalikan":
+        return fungsi_append(" ".join([cmd] + args))
+    elif cmd == "selesai":
+        return fungsi_end()
     else:
+        if in_fungsi_mode:
+            return fungsi_append(" ".join([cmd] + args))
         print(f"[Perintah tidak dikenal: {cmd}]")
         return None
 
@@ -30,6 +42,7 @@ def kalku_handler(line):
         return
 
     env[var] = result
+    print(f"[DEBUG] {var} = {result}")
 
 def tampilkan_handler(args):
     if not args:
@@ -50,10 +63,52 @@ def tulis_handler(args):
     from helpers.tulis import tulis
     tulis(args)
 
+def fungsi_start(args):
+    global in_fungsi_mode, fungsi_name, fungsi_args, fungsi_buffer
+    if in_fungsi_mode:
+        print("[Kesalahan: Sudah dalam mode fungsi]")
+        return
+    if not args:
+        print("[Kesalahan: Nama fungsi tidak diberikan]")
+        return
+    in_fungsi_mode = True
+    fungsi_name = args[0]
+    fungsi_args = args[1:]
+    fungsi_buffer = []
+    print(f"[Mulai definisi fungsi: {fungsi_name} dengan args {fungsi_args}]")
+
+def fungsi_append(line):
+    global fungsi_buffer
+    if not in_fungsi_mode:
+        print("[Kesalahan: Tidak dalam mode fungsi]")
+        return
+    fungsi_buffer.append(line)
+    print(f"[Baris fungsi ditambahkan]: {line}")
+
+def fungsi_end():
+    global in_fungsi_mode, fungsi_name, fungsi_args, fungsi_buffer
+    if not in_fungsi_mode:
+        print("[Kesalahan: Tidak dalam mode fungsi]")
+        return
+    proc = subprocess.Popen(
+        ["python", "helpers/fungsi.py", "tulis", fungsi_name] + fungsi_args,
+        stdin=subprocess.PIPE,
+        text=True
+    )
+    proc.communicate("\n".join(fungsi_buffer) + "\nselesai\n")
+    if proc.returncode == 0:
+        print(f"[Fungsi '{fungsi_name}' tersimpan]")
+    else:
+        print(f"[Gagal menyimpan fungsi '{fungsi_name}']")
+    in_fungsi_mode = False
+    fungsi_name = None
+    fungsi_args = []
+    fungsi_buffer = []
+
 def main():
     print("== IlyasBat Mode REPL ==")
     print("Ketik 'keluar' untuk mengakhiri.")
-    print("Ketik 'reset' untuk menghapus buffer.")
+    print("Ketik 'reset' untuk menghapus penyangga.")
     print("Ketik 'lihat variabel' untuk melihat semua variabel.")
     print("Ketik 'jalan' untuk menjalankan skrip.")
 
@@ -66,11 +121,18 @@ def main():
             print("\nKeluar.")
             break
 
+        if in_fungsi_mode:
+            if inp.lower() == "selesai":
+                fungsi_end()
+            else:
+                fungsi_append(inp)
+            continue
+
         if inp.lower() == "keluar":
             break
         elif inp.lower() == "reset":
             buffer.clear()
-            print("[buffer dikosongkan]")
+            print("[penyangga dikosongkan]")
         elif inp.lower() == "lihat variabel":
             if env:
                 for k, v in env.items():
