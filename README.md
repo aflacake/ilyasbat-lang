@@ -7,6 +7,9 @@ Sudah menjadi bahasa pemrograman prosedural sederhana, ide karya turanan dari Ea
 Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perhitungan, menangani percabangan dasar, dan mengakhiri program.
 
 # Instalasi
+## Diperlukan
+- **Python versi terbaru**. Karena menggunakan teknologi ini. Jika belum terinstal, unduh Python [disini](https://www.python.org/downloads/).
+
 ## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
 1. Jalankan CMD sebagai Administrator
