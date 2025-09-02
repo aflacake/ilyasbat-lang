@@ -40,7 +40,7 @@ def tampilkan_handler(args):
         print(f"[{key} tidak ditemukan]")
 
 def berakhir_handler(args):
-    from helpers.berakhir import selesai
+    from helpers.berakhir import berakhir
     berakhir()
 
 def main():
