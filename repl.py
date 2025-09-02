@@ -26,7 +26,6 @@ def kalku_handler(line):
         return
 
     env[var] = result
-    print(f"[DEBUG] {var} = {result}")
 
 def tampilkan_handler(args):
     if not args:
