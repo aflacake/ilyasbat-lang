@@ -153,6 +153,18 @@ def jika_end():
     jika_buffer = []
     jika_condition = []
 
+def menampilkan_handler(text):
+    text = text.strip()
+
+    if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
+        print(text[1:-1])
+        return
+
+    if text in env:
+        print(env[text])
+    else:
+        print(text)
+
 def main():
     print("== IlyasBat Mode REPL ==")
     print("Ketik 'keluar' untuk mengakhiri.")
