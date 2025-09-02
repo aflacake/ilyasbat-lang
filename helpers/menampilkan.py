@@ -8,10 +8,13 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 key = sys.argv[1]
-val = os.environ.get(key)
 
-if val is None:
-    print(f"[{key} tidak ditemukan]")
-    sys.exit(1)
+if (key.startswith('"') and key.endswith('"')) or (key.startswith("'") and key.endswith("'")):
+    print(key[1:-1])
 else:
-    print(val)
+    val = os.environ.get(key)
+    if val is None:
+        print(f"[{key} tidak ditemukan]")
+        sys.exit(1)
+    else:
+        print(val)
