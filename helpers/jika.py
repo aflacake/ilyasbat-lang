@@ -54,5 +54,43 @@ def main():
     else:
         sys.exit(0)
 
+def evaluate_condition(args, env):
+    import operator
+
+    ops = {
+        '==': operator.eq,
+        '!=': operator.ne,
+        '>': operator.gt,
+        '<': operator.lt,
+        '>=': operator.ge,
+        '<=': operator.le,
+    }
+
+    def try_convert(val):
+        try:
+            if '.' in val:
+                return float(val)
+            return int(val)
+        except:
+            return env.get(val, val)
+
+    if len(args) < 3:
+        print("[Kesalahan: Kondisi tidak lengkap]")
+        return False
+
+    val1 = try_convert(args[0])
+    op = args[1]
+    val2 = try_convert(args[2])
+
+    if op not in ops:
+        print(f"[Operator tidak dikenal: {op}]")
+        return False
+
+    try:
+        return ops[op](val1, val2)
+    except Exception as e:
+        print(f"[Kesalahan saat evaluasi kondisi: {e}]")
+        return False
+
 if __name__ == '__main__':
     main()
