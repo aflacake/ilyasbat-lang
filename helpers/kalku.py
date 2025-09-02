@@ -16,10 +16,6 @@ def maks(a, b): return max(a, b)
 def min(a, b): return min(a, b)
 
 def get_user_function(name):
-    path = os.path.join(CACHE_DIR, f"{name}.ibat")
-    if not os.path.exists(path):
-        return None
-
     def wrapper(*args):
         try:
             result = subprocess.check_output(
@@ -27,15 +23,13 @@ def get_user_function(name):
                 stderr=subprocess.DEVNULL,
                 text=True
             )
-            lines = result.strip().splitlines()
-            for line in lines:
+            for line in result.strip().splitlines():
                 if line.startswith("__RETURN__="):
-                    val = line.split("=", 1)[1]
+                    val = line.split("=",1)[1]
                     return try_parse_number(val) or val
             return None
         except subprocess.CalledProcessError:
             return None
-
     return wrapper
 
 def try_parse_number(s):
