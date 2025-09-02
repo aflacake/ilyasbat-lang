@@ -26,8 +26,10 @@ def get_user_function(name):
                 text=True
             )
             lines = result.strip().splitlines()
-            if lines:
-                return try_parse_number(lines[-1]) or lines[-1]
+            for line in lines:
+                if line.startswith("__RETURN__="):
+                    val = line.split("=", 1)[1]
+                    return try_parse_number(val) or val
             return None
         except subprocess.CalledProcessError:
             return None
