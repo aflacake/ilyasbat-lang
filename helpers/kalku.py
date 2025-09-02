@@ -1,6 +1,7 @@
 # helpers/kalku.py
 
 import re
+from simpleeval import simple_eval, DEFAULT_FUNCTIONS
 
 def tambah(a, b): return a + b
 def kurang(a, b): return a - b
@@ -22,6 +23,7 @@ allowed_funcs = {
 
 def kalkulasi(expr: str, env: dict):
     if "=" not in expr:
+        print("[Format ekspresi salah: gunakan '=' untuk penugasan]")
         return None, None
 
     var, raw_expr = map(str.strip, expr.split("=", 1))
@@ -30,20 +32,11 @@ def kalkulasi(expr: str, env: dict):
     for token in tokens:
         if token in env:
             raw_expr = re.sub(rf'\b{token}\b', str(env[token]), raw_expr)
-        elif token in allowed_funcs:
-            continue
-        elif token in ["True", "False"]:
-            continue
-        elif re.match(r'^[0-9]+$', token):
-            continue
-        else:
-            print(f"[Variabel tidak ditemukan: {token}]")
-            return None, None
 
     try:
-        result = eval(raw_expr, {"__builtins__": None}, allowed_funcs)
-        result = round(float(result), 2) if isinstance(result, float) else result
+        result = simple_eval(raw_expr, names={}, functions=allowed_funcs)
+        result = round(result, 2) if isinstance(result, float) else result
         return var, result
     except Exception as e:
-        print(f"[Kesalahan kalkulasi: {e}]")
+        print(f"[Kalkulasi error: {e}]")
         return None, None
