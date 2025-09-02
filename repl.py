@@ -3,8 +3,6 @@
 import os
 import subprocess
 
-from helpers.menampilkan import menampilkan_handler
-
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
 
