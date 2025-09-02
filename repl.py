@@ -10,6 +10,8 @@ def run_module(cmd, args):
         return kalku_handler(args)
     elif cmd == "menampilkan":
         return tampilkan_handler(args)
+    elif cmd == "berakhir":
+        return berakhir_handler(args)
     else:
         print(f"[Perintah tidak dikenal: {cmd}]")
         return None
@@ -36,6 +38,10 @@ def tampilkan_handler(args):
         print(env[key])
     else:
         print(f"[{key} tidak ditemukan]")
+
+def berakhir_handler(args):
+    from helpers.berakhir import selesai
+    berakhir()
 
 def main():
     print("== IlyasBat Mode REPL ==")
