@@ -3,7 +3,7 @@
 import sys
 
 if len(sys.argv) < 2:
-    print("[Python] Kesalahan: Label tujuan tidak diberikan.")
+    print("Kesalahan: Label tujuan tidak diberikan.")
     sys.exit(1)
 
 label = sys.argv[1]
