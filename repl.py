@@ -3,6 +3,8 @@
 import os
 import subprocess
 
+from helpers.menampilkan import menampilkan_handler
+
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
 
@@ -21,8 +23,7 @@ def run_module(cmd, args):
     if cmd == "kalku":
         return kalku_handler(args)
     elif cmd == "menampilkan":
-        full_arg = " ".join(args)
-        return tampilkan_handler([full_arg])
+        return menampilkan_handler(env, args)
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
