@@ -11,7 +11,13 @@ fungsi_buffer = []
 fungsi_name = None
 fungsi_args = []
 
+in_jika_mode = False
+jika_buffer = []
+jika_condition = []
+
 def run_module(cmd, args):
+    global in_fungsi_mode, in_jika_mode
+
     if cmd == "kalku":
         return kalku_handler(args)
     elif cmd == "menampilkan":
@@ -24,11 +30,18 @@ def run_module(cmd, args):
         return fungsi_start(args)
     elif cmd == "kembalikan":
         return fungsi_append(" ".join([cmd] + args))
+    elif cmd == "jika":
+        return jika_start(args)
     elif cmd == "selesai":
-        return fungsi_end()
+        if in_fungsi_mode:
+            return fungsi_end()
+        elif in_jika_mode:
+            return jika_end()
     else:
         if in_fungsi_mode:
             return fungsi_append(" ".join([cmd] + args))
+        elif in_jika_mode:
+            return jika_append(" ".join([cmd] + args))
         print(f"[Perintah tidak dikenal: {cmd}]")
         return None
 
@@ -104,6 +117,40 @@ def fungsi_end():
     fungsi_name = None
     fungsi_args = []
     fungsi_buffer = []
+
+def jika_start(args):
+    global in_jika_mode, jika_buffer, jika_condition
+    if not args or "maka" not in args:
+        print("[Kesalahan: Sintaks jika harus mengandung 'maka']")
+        return
+    idx = args.index("maka")
+    jika_condition = args[:idx]
+    in_jika_mode = True
+    jika_buffer = []
+    print(f"[Mulai blok jika: {' '.join(jika_condition)}]")
+
+def jika_append(line):
+    global jika_buffer
+    jika_buffer.append(line)
+    print(f"[Baris jika ditambahkan]: {line}")
+
+def jika_end():
+    global in_jika_mode, jika_buffer, jika_condition
+    print("[Akhir blok jika]")
+    from helpers.jika import evaluate_condition
+    if evaluate_condition(jika_condition, env):
+        for line in jika_buffer:
+            parts = line.strip().split()
+            if not parts:
+                continue
+            cmd = parts[0]
+            args = parts[1:]
+            run_module(cmd, args)
+    else:
+        print("[Kondisi tidak terpenuhi, blok tidak dijalankan]")
+    in_jika_mode = False
+    jika_buffer = []
+    jika_condition = []
 
 def main():
     print("== IlyasBat Mode REPL ==")
