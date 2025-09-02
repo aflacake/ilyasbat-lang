@@ -6,7 +6,7 @@ import os
 import re
 
 if len(sys.argv) < 2:
-    print("[Python] Kesalahan: Kunci tidak diberikan.")
+    print("Kesalahan: Kunci tidak diberikan.")
     sys.exit(1)
 
 key_path_raw = sys.argv[1]
@@ -14,7 +14,7 @@ key_path_raw = sys.argv[1]
 store_file = "penyimpanan.json"
 
 if not os.path.exists(store_file):
-    print("[Python] Kesalahan: Tidak ada data tersimpan.")
+    print("Kesalahan: Tidak ada data tersimpan.")
     sys.exit(1)
 
 with open(store_file, "r") as f:
@@ -37,5 +37,5 @@ try:
     value = resolve_nested(data, keys)
     print(value)
 except Exception as e:
-    print(f"[Python] Kesalahan: Tidak dapat mengambil nilai '{key_path_raw}'.")
+    print(f"Kesalahan: Tidak dapat mengambil nilai '{key_path_raw}'.")
     sys.exit(1)
