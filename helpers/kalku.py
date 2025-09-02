@@ -1,9 +1,7 @@
-# helpers/kalku.py
-
 import re
 import subprocess
 import os
-from simpleeval import simple_eval, DEFAULT_FUNCTIONS
+from simpleeval import simple_eval
 
 CACHE_DIR = "cache"
 
@@ -70,12 +68,12 @@ def kalkulasi(expr: str, env: dict):
             names[token] = env[token]
         elif token in funcs:
             continue
-        elif get_user_function(token):
-            funcs[token] = get_user_function(token)
         elif token in ["True", "False"]:
             continue
         else:
-            continue
+            user_func = get_user_function(token)
+            if user_func:
+                funcs[token] = user_func
 
     try:
         result = simple_eval(raw_expr, names=names, functions=funcs)
