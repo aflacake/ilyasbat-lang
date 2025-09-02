@@ -32,19 +32,19 @@ def panggil_fungsi(nama, arg_values):
         print("Jumlah argumen tidak sesuai.")
         sys.exit(1)
 
+    print("setlocal EnableDelayedExpansion")
     for name, val in zip(arg_names, arg_values):
         print(f"set {name}={val}")
 
-        for line in lines[1:]:
-            stripped = line.strip()
-            if stripped.lower().startswith("kembalikan"):
-                parts = stripped.split()
-                if len(parts) == 2:
-                    print(f"echo __RETURN__=!{parts[1]}!")
-                    print("goto :eof")
-
-            else:
-                print(stripped)
+    for line in lines[1:]:
+        stripped = line.strip()
+        if stripped.lower().startswith("kembalikan"):
+            parts = stripped.split()
+            if len(parts) == 2:
+                print(f"echo __RETURN__=!{parts[1]}!")
+                print("goto :eof")
+        else:
+            print(stripped)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
