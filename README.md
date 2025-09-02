@@ -10,6 +10,12 @@ Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perh
 ## Diperlukan
 - **Python versi terbaru**. Karena menggunakan teknologi ini. Jika belum terinstal, unduh Python [disini](https://www.python.org/downloads/).
 
+### Paket Pihak Ketiga
+- Pasang `simpleeval`
+  ```
+  pip install simpleeval
+  ```
+
 ## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
 1. Jalankan CMD sebagai Administrator
