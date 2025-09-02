@@ -6,7 +6,7 @@ import os
 import re
 
 if len(sys.argv) < 3:
-    print("[Python] Kesalahan: Format menyimpan salah (butuh kunci dan nilai).")
+    print("Kesalahan: Format menyimpan salah (butuh kunci dan nilai).")
     sys.exit(1)
 
 raw_key = sys.argv[1]
