@@ -1,15 +1,14 @@
 # helpers/menampilkan.py
 
-def tampilkan_handler(env, args):
-    if not args:
-        print("[Tidak ada argumen untuk menampilkan]")
+def menampilkan_handler(env, args):
+    expr = " ".join(args)
+
+    if (expr.startswith('"') and expr.endswith('"')) or (expr.startswith("'") and expr.endswith("'")):
+        print(expr[1:-1])
         return
 
-    key = args[0]
-    if (key.startswith('"') and key.endswith('"')) or (key.startswith("'") and key.endswith("'")):
-        print(key[1:-1])
+    val = env.get(expr)
+    if val is not None:
+        print(val)
     else:
-        if key in env:
-            print(env[key])
-        else:
-            print(f"[{key} tidak ditemukan]")
+        print(f"[{expr} tidak ditemukan]")
