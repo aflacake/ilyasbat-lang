@@ -3,6 +3,9 @@
 import os
 import subprocess
 
+from colorama import init, Fore, Style
+init(autoreset=True)
+
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
 
@@ -73,7 +76,7 @@ def kalku_handler(line):
         return
 
     env[var] = result
-    print(f"[DEBUG] {var} = {result}")
+    print(Fore.CYAN + f"[DEBUG] {var} = {result}")
 
 def tampilkan_handler(args):
     if not args:
@@ -106,7 +109,7 @@ def fungsi_start(args):
     fungsi_name = args[0]
     fungsi_args = args[1:]
     fungsi_buffer = []
-    print(f"[Mulai definisi fungsi: {fungsi_name} dengan args {fungsi_args}]")
+    print(Fore.GREEN + f"[Mulai definisi fungsi: {fungsi_name} dengan args {fungsi_args}]")
 
 def fungsi_append(line):
     global fungsi_buffer
@@ -114,7 +117,7 @@ def fungsi_append(line):
         print("[Kesalahan: Tidak dalam mode fungsi]")
         return
     fungsi_buffer.append(line)
-    print(f"[Baris fungsi ditambahkan]: {line}")
+    print(Fore.YELLOW + f"[Baris fungsi ditambahkan]: {line}")
 
 def fungsi_end():
     global in_fungsi_mode, fungsi_name, fungsi_args, fungsi_buffer
@@ -171,11 +174,11 @@ def jika_end():
     jika_condition = []
 
 def main():
-    print("== IlyasBat Mode REPL ==")
-    print("Ketik 'keluar' untuk mengakhiri.")
-    print("Ketik 'reset' untuk menghapus penyangga.")
-    print("Ketik 'lihat variabel' untuk melihat semua variabel.")
-    print("Ketik 'jalan' untuk menjalankan skrip.")
+    print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
+    print(Fore.CYAN + "Ketik 'keluar' untuk mengakhiri.")
+    print(Fore.CYAN + "Ketik 'reset' untuk menghapus penyangga.")
+    print(Fore.CYAN + "Ketik 'lihat variabel' untuk melihat semua variabel.")
+    print(Fore.CYAN + "Ketik 'jalan' untuk menjalankan skrip.")
 
     buffer = []
 
@@ -197,13 +200,13 @@ def main():
             break
         elif inp.lower() == "reset":
             buffer.clear()
-            print("[penyangga dikosongkan]")
+            print(Fore.YELLOW + "[penyangga dikosongkan]")
         elif inp.lower() == "lihat variabel":
             if env:
                 for k, v in env.items():
-                    print(f"{k} = {v}")
+                    print(Fore.GREEN + f"{k} = {v}")
             else:
-                print("[belum ada variabel]")
+                print(Fore.YELLOW + "[belum ada variabel]")
         elif inp.lower() == "jalan":
             for line in buffer:
                 parts = line.strip().split()
