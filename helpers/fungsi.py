@@ -50,10 +50,12 @@ def execute_fungsi(lines, env):
         if not line or line.startswith("#"):
             continue
         if line.lower().startswith("kembalikan"):
-            parts = line.split(maxsplit=1)
-            if len(parts) == 2:
-                varname = parts[1].strip()
-                return_value = env.get(varname, None)
+            expr = line.split(maxsplit=1)[1].strip()
+            try:
+                from simpleeval import simple_eval
+                return_value = simple_eval(expr, names=env)
+            except Exception:
+                return_value = env.get(expr, None)
             break
         else:
             parts = line.split()
