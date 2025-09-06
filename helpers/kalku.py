@@ -25,8 +25,9 @@ def get_user_function(name):
             )
             for line in result.strip().splitlines():
                 if line.startswith("__RETURN__="):
-                    val = line.split("=",1)[1]
-                    return try_parse_number(val) or val
+                    val = line.split("=", 1)[1]
+                    num = try_parse_number(val)
+                    return num if num is not None else val
             return None
         except subprocess.CalledProcessError:
             return None
@@ -73,7 +74,7 @@ def kalkulasi(expr: str, env: dict):
             continue
         elif token in ["True", "False"]:
             continue
-        elif is_user_function(token):
+        else:
             funcs[token] = get_user_function(token)
 
     try:
