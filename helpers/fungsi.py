@@ -7,6 +7,23 @@ from simpleeval import simple_eval
 CACHE_DIR = "cache"
 
 
+def _coerce_number(v):
+    """Konversi string numerik ke int/float; selain itu biarkan apa adanya."""
+    if isinstance(v, (int, float)):
+        return v
+    if isinstance(v, str):
+        v = v.strip()
+        try:
+            return int(v)
+        except ValueError:
+            pass
+        try:
+            return float(v)
+        except ValueError:
+            pass
+    return v
+
+
 def tulis_fungsi(nama, args, lines):
     """Simpan fungsi ke cache/<nama>.ibat"""
     os.makedirs(CACHE_DIR, exist_ok=True)
@@ -19,7 +36,7 @@ def tulis_fungsi(nama, args, lines):
 
 
 def panggil_fungsi(nama, arg_values):
-    """Panggil fungsi dengan argumen tertentu"""
+    """Panggil fungsi dengan argumen tertentu (CLI arg datang sebagai string)."""
     path = os.path.join(CACHE_DIR, nama + ".ibat")
     if not os.path.exists(path):
         print(f"Fungsi '{nama}' tidak ditemukan.")
@@ -28,17 +45,18 @@ def panggil_fungsi(nama, arg_values):
     with open(path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
-    if not lines[0].startswith("#ARGS"):
+    if not lines or not lines[0].startswith("#ARGS"):
         print("Format fungsi tidak valid.")
         sys.exit(1)
 
     arg_names = lines[0].strip().split()[1:]
     if len(arg_values) != len(arg_names):
-        print(f"Jumlah argumen tidak sesuai. Diberikan {len(arg_values)}, "
-              f"seharusnya {len(arg_names)}")
+        print(f"Jumlah argumen tidak sesuai. Diberikan {len(arg_values)}, seharusnya {len(arg_names)}")
         sys.exit(1)
 
-    env = dict(zip(arg_names, arg_values))
+    coerced_values = [_coerce_number(v) for v in arg_values]
+    env = dict(zip(arg_names, coerced_values))
+
     return execute_fungsi(lines[1:], env)
 
 
@@ -51,29 +69,27 @@ def execute_fungsi(lines, env):
     """
     return_value = None
 
-    for line in lines:
-        line = line.strip()
+    for raw in lines:
+        line = raw.strip()
         if not line or line.startswith("#"):
             continue
 
         if line.lower().startswith("kembalikan"):
-            expr = line.split(maxsplit=1)[1].strip()
+            parts = line.split(maxsplit=1)
+            expr = parts[1].strip() if len(parts) > 1 else ""
             try:
                 return_value = simple_eval(expr, names=env)
             except Exception:
                 return_value = env.get(expr, None)
             break
 
-        elif "=" in line:
+        if "=" in line:
             var, expr = map(str.strip, line.split("=", 1))
             try:
                 env[var] = simple_eval(expr, names=env)
             except Exception:
                 env[var] = expr
-
-        else:
-            pass
-
+            continue
     return return_value
 
 
