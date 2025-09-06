@@ -19,6 +19,14 @@ Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perh
   ```
   pip install colorama
   ```
+- Pasang `pygments`, untuk syntax highlighting
+  ```
+  pip install pygments
+  ```
+- Pasang `prompt_toolkit`, buat REPL yang lebih interaktif
+  ```
+  pip install prompt_toolkit
+  ```
 
 ## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
