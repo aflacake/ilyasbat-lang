@@ -41,6 +41,11 @@ def try_parse_number(s):
     except:
         return None
 
+
+def is_user_function(name):
+    path = os.path.join(CACHE_DIR, name + ".ibat")
+    return os.path.exists(path)
+
 def kalkulasi(expr: str, env: dict):
     if "=" not in expr:
         print("[Format ekspresi salah: gunakan '=' untuk penugasan]")
@@ -68,10 +73,8 @@ def kalkulasi(expr: str, env: dict):
             continue
         elif token in ["True", "False"]:
             continue
-        else:
-            user_func = get_user_function(token)
-            if user_func:
-                funcs[token] = user_func
+        elif is_user_function(token):
+            funcs[token] = get_user_function(token)
 
     try:
         result = simple_eval(raw_expr, names=names, functions=funcs)
