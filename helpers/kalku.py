@@ -83,3 +83,22 @@ def kalkulasi(expr: str, env: dict):
     except Exception as e:
         print(f"[Kesalahan kalkulasi: {e}]")
         return None, None
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        sys.exit(1)
+
+    expr = " ".join(sys.argv[1:])
+
+    env = {}
+
+    var, result = kalkulasi(expr, env)
+
+    if var is not None:
+        env[var] = result
+        print(f"[DEBUG] {var} = {result}")
+        print(result)
+    else:
+        sys.exit(1)
