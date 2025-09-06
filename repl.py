@@ -72,7 +72,7 @@ def kalku_handler(line):
 
     var, result = kalkulasi(full_expr, env)
     if var is None:
-        print("[Kalkulasi gagal]")
+        print(Fore.RED + "[Kalkulasi gagal]")
         return
 
     env[var] = result
@@ -131,9 +131,9 @@ def fungsi_end():
     )
     proc.communicate("\n".join(fungsi_buffer) + "\nselesai\n")
     if proc.returncode == 0:
-        print(f"[Fungsi '{fungsi_name}' tersimpan]")
+        print(Fore.GREEN + f"[Fungsi '{fungsi_name}' tersimpan]")
     else:
-        print(f"[Gagal menyimpan fungsi '{fungsi_name}']")
+        print(Fore.RED + f"[Gagal menyimpan fungsi '{fungsi_name}']")
     in_fungsi_mode = False
     fungsi_name = None
     fungsi_args = []
