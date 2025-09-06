@@ -15,6 +15,10 @@ Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perh
   ```
   pip install simpleeval
   ```
+- Pasang `colorama`, untuk warna teks cross-platform
+  ```
+  pip install colorama
+  ```
 
 ## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
