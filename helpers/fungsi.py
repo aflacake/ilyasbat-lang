@@ -2,19 +2,24 @@
 
 import sys
 import os
-import subprocess
+from simpleeval import simple_eval
 
 CACHE_DIR = "cache"
 
+
 def tulis_fungsi(nama, args, lines):
+    """Simpan fungsi ke cache/<nama>.ibat"""
     os.makedirs(CACHE_DIR, exist_ok=True)
     path = os.path.join(CACHE_DIR, nama + ".ibat")
     with open(path, "w", encoding="utf-8") as f:
         f.write("#ARGS " + " ".join(args) + "\n")
-        f.writelines(line if line.endswith("\n") else line + "\n" for line in lines)
+        for line in lines:
+            f.write(line.rstrip() + "\n")
     print(f"[Fungsi '{nama}' berhasil disimpan ke {path}]")
 
+
 def panggil_fungsi(nama, arg_values):
+    """Panggil fungsi dengan argumen tertentu"""
     path = os.path.join(CACHE_DIR, nama + ".ibat")
     if not os.path.exists(path):
         print(f"Fungsi '{nama}' tidak ditemukan.")
@@ -29,19 +34,20 @@ def panggil_fungsi(nama, arg_values):
 
     arg_names = lines[0].strip().split()[1:]
     if len(arg_values) != len(arg_names):
-        print("Jumlah argumen tidak sesuai.")
+        print(f"Jumlah argumen tidak sesuai. Diberikan {len(arg_values)}, "
+              f"seharusnya {len(arg_names)}")
         sys.exit(1)
 
     env = dict(zip(arg_names, arg_values))
-
     return execute_fungsi(lines[1:], env)
+
 
 def execute_fungsi(lines, env):
     """
-    Eksekusi fungsi: 
+    Eksekusi isi fungsi.
     - lines: list baris perintah fungsi
     - env: dictionary variabel nama -> nilai
-    Return nilai dari perintah 'kembalikan'
+    Return: nilai dari 'kembalikan'
     """
     return_value = None
 
@@ -49,40 +55,29 @@ def execute_fungsi(lines, env):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
+
         if line.lower().startswith("kembalikan"):
             expr = line.split(maxsplit=1)[1].strip()
             try:
-                from simpleeval import simple_eval
                 return_value = simple_eval(expr, names=env)
             except Exception:
                 return_value = env.get(expr, None)
             break
+
+        elif "=" in line:
+            var, expr = map(str.strip, line.split("=", 1))
+            try:
+                env[var] = simple_eval(expr, names=env)
+            except Exception:
+                env[var] = expr
+
         else:
-            parts = line.split()
-            if not parts:
-                continue
-            cmd = parts[0].lower()
-            args = parts[1:]
-            if cmd == "tambah" and len(args) == 2:
-                var = args[0]
-                try:
-                    val = float(args[1])
-                except:
-                    val = env.get(args[1], 0)
-                env[var] = float(env.get(var,0)) + val
-            elif cmd == "kurang" and len(args) == 2:
-                var = args[0]
-                try:
-                    val = float(args[1])
-                except:
-                    val = env.get(args[1], 0)
-                env[var] = float(env.get(var,0)) - val
-            else:
-                pass
+            pass
 
     return return_value
 
-if __name__ == "__main__":
+
+def main():
     if len(sys.argv) < 3:
         sys.exit(1)
 
@@ -106,3 +101,7 @@ if __name__ == "__main__":
 
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
