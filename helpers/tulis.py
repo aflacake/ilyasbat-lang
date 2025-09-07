@@ -12,16 +12,15 @@ def tulis(args, env=None):
     for arg in args:
         if (arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'")):
             hasil.append(arg[1:-1])
+        elif env and arg in env:
+            hasil.append(str(env[arg]))
         else:
-            if env and arg in env:
-                hasil.append(str(env[arg]))
-            elif arg in os.environ:
-                hasil.append(os.environ[arg])
-            else:
-                hasil.append(arg)
+            hasil.append(arg)
 
     output = " ".join(hasil)
     print(output)
 
 if __name__ == "__main__":
+    import sys
     tulis(sys.argv[1:])
+
