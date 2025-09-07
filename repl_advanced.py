@@ -7,14 +7,16 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.keys import Keys
 from pygments.lexer import RegexLexer
 from pygments.token import Keyword, Name, Operator, Number, String, Text
 
 from repl import run_module, env, fungsi_end, fungsi_append, in_fungsi_mode
 
+# State global
 in_jika_mode = False
+jika_buffer = []
 
+# ----------------- Lexer untuk highlight -----------------
 class IlyasBatLexer(RegexLexer):
     name = "ilyasbat"
     tokens = {
@@ -29,6 +31,7 @@ class IlyasBatLexer(RegexLexer):
         ]
     }
 
+# ----------------- Autocompletion -----------------
 keywords = [
     "fungsi", "selesai", "kembalikan", "kalku", "jalan", "reset",
     "keluar", "lihat", "variabel", "jika", "maka", "tulis", "menampilkan", "berakhir",
@@ -36,48 +39,55 @@ keywords = [
 ]
 completer = WordCompleter(keywords, ignore_case=True)
 
+# ----------------- Style -----------------
 style = Style.from_dict({
     "prompt": "ansicyan bold",
 })
 
+# ----------------- Blok Jika -----------------
 def jika_append(line: str):
-    buffer.append(line)
+    global jika_buffer
+    jika_buffer.append(line)
 
 def jika_end():
-    global buffer
+    global jika_buffer
     print("[Blok jika tersimpan]")
-    for l in buffer:
+    for l in jika_buffer:
         print("   ", l)
-    buffer = []
+    jika_buffer = []
 
+# ----------------- Continuation Prompt -----------------
 def continuation(width, line_number, is_soft_wrap):
     if in_fungsi_mode or in_jika_mode:
         return "    "
     return ""
 
+# ----------------- Main REPL -----------------
 def main():
+    global in_jika_mode, jika_buffer
+
     print("== IlyasBat REPL Lanjutan ==")
     print("Tips:")
     print(" - Ketik 'keluar' untuk keluar")
-    print(" - Tekan Shift+Enter untuk pindah baris")
+    print(" - Tekan Ctrl+J untuk pindah baris")
     print(" - Tekan Enter untuk eksekusi blok input\n")
 
     history = InMemoryHistory()
 
+    # Key Bindings
     kb = KeyBindings()
 
+    # Enter -> submit
     @kb.add("enter")
     def _(event):
-        buff = event.app.current_buffer
-        if buff.validate():
-            event.app.exit(result=buff.text)
-        else:
-            buff.insert_text("\n")
+        event.app.current_buffer.validate_and_handle()
 
-    @kb.add(Keys.ShiftEnter)
+    # Ctrl+J -> newline
+    @kb.add("c-j")
     def _(event):
         event.app.current_buffer.insert_text("\n")
 
+    # Prompt session
     session = PromptSession(
         history=history,
         completer=completer,
@@ -98,6 +108,7 @@ def main():
             print("\nKeluar.")
             break
 
+        # ----------------- Mode Fungsi -----------------
         if in_fungsi_mode:
             if not inp.strip():
                 fungsi_end()
@@ -109,9 +120,10 @@ def main():
                 fungsi_append(line)
             continue
 
+        # ----------------- Mode Jika -----------------
         if inp.startswith("jika "):
             in_jika_mode = True
-            buffer = []
+            jika_buffer = []
             print("[Mulai blok jika]")
             continue
 
@@ -121,16 +133,13 @@ def main():
             continue
 
         if in_jika_mode:
-            if not inp.strip():
-                jika_end()
-                continue
-
             for line in inp.splitlines():
                 if not line.startswith("    "):
                     line = "    " + line
                 jika_append(line)
             continue
 
+        # ----------------- Perintah REPL -----------------
         if inp.lower() == "keluar":
             break
         elif inp.lower() == "reset":
@@ -147,11 +156,12 @@ def main():
                 parts = line.strip().split()
                 if not parts:
                     continue
-                cmd, args = parts[0], parts[1:]
+                cmd, args = parts[0], parts[1: ]
                 run_module(cmd, args)
         else:
             for line in inp.splitlines():
                 buffer.append(line.strip())
 
+# ----------------- Entry Point -----------------
 if __name__ == "__main__":
     main()
