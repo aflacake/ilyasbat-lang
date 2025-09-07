@@ -12,15 +12,23 @@ ops = {
     '<=': operator.le,
 }
 
-def try_convert(val, env=None):
+def try_convert(val, env):
     try:
         if '.' in val:
             return float(val)
         return int(val)
     except:
-        if env and val in env:
-            return env[val]
-        return 0
+        if val.startswith('"') and val.endswith('"'):
+            return val[1:-1]
+        if val.startswith("'") and val.endswith("'"):
+            return val[1:-1]
+        if env is not None:
+            if val in env:
+                return env[val]
+            else:
+                print(f"[Peringatan] Variabel '{val}' belum ada, dianggap 0")
+                return 0
+        return val
 
 def evaluate_condition(args, env):
     if len(args) < 3:
