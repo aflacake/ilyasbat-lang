@@ -55,6 +55,8 @@ def run_module(cmd, args):
         return jika_start(args)
     elif cmd == "masukkan":
         return masukkan_handler(args)
+    elif cmd == "melompat":
+        return melompat_handler(args, buffer, current_index)
     elif cmd == "selesai":
         if in_fungsi_mode:
             return fungsi_end()
@@ -97,7 +99,7 @@ def berakhir_handler(args):
 
 def tulis_handler(args):
     from helpers.tulis import tulis
-    tulis(args)
+    tulis(args, env)
 
 def fungsi_start(args):
     global in_fungsi_mode, fungsi_name, fungsi_args, fungsi_buffer
@@ -196,6 +198,23 @@ def masukkan_handler(args):
             print(result)
     except subprocess.CalledProcessError:
         print(Fore.RED + "[Kesalahan saat menjalankan masukkan]")
+
+def melompat_handler(args, buffer, current_index):
+    from helpers.melompat import resolve_jump
+
+    if not args:
+        print("[Kesalahan: Label tujuan tidak diberikan]")
+        return current_index + 1
+
+    target = args[0]
+    new_index = resolve_jump(buffer, target)
+
+    if new_index is None:
+        print(f"[Label '{target}' tidak ditemukan]")
+        return current_index + 1
+
+    print(f"[Lompat ke label '{target}']")
+    return new_index
 
 def main():
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
