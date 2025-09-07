@@ -53,6 +53,8 @@ def run_module(cmd, args):
         return fungsi_append(" ".join([cmd] + args))
     elif cmd == "jika":
         return jika_start(args)
+    elif cmd == "masukkan":
+        return masukkan_handler(args)
     elif cmd == "selesai":
         if in_fungsi_mode:
             return fungsi_end()
@@ -172,6 +174,28 @@ def jika_end():
     in_jika_mode = False
     jika_buffer = []
     jika_condition = []
+
+def masukkan_handler(args):
+    if not args:
+        print("[Kesalahan: Nama variabel tidak diberikan untuk masukkan]")
+        return
+
+    varname = args[0]
+
+    try:
+        result = subprocess.check_output(
+            ["python", "helpers/masukkan.py", varname],
+            text=True
+        ).strip()
+
+        if "=" in result:
+            var, val = result.split("=", 1)
+            env[var] = val
+            print(Fore.CYAN + f"[DEBUG] {var} = {val}")
+        else:
+            print(result)
+    except subprocess.CalledProcessError:
+        print(Fore.RED + "[Kesalahan saat menjalankan masukkan]")
 
 def main():
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
