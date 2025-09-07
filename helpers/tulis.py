@@ -1,20 +1,24 @@
 # helpers/tulis.py
 
 import sys
+import os
 
 def tulis(args):
     if not args:
         print("[Tidak ada teks untuk ditulis]")
         return
 
-    cleaned = []
+    hasil = []
     for arg in args:
         if (arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'")):
-            cleaned.append(arg[1:-1])
+            hasil.append(arg[1:-1])
         else:
-            cleaned.append(arg)
+            if arg in os.environ:
+                hasil.append(os.environ[arg])
+            else:
+                hasil.append(arg)
 
-    output = " ".join(cleaned)
+    output = " ".join(hasil)
     print(output)
 
 if __name__ == "__main__":
