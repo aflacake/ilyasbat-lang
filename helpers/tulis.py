@@ -3,7 +3,7 @@
 import sys
 import os
 
-def tulis(args):
+def tulis(args, env=None):
     if not args:
         print("[Tidak ada teks untuk ditulis]")
         return
@@ -13,7 +13,9 @@ def tulis(args):
         if (arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'")):
             hasil.append(arg[1:-1])
         else:
-            if arg in os.environ:
+            if env and arg in env:
+                hasil.append(str(env[arg]))
+            elif arg in os.environ:
                 hasil.append(os.environ[arg])
             else:
                 hasil.append(arg)
