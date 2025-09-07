@@ -6,10 +6,13 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
+from prompt_toolkit.key_binding import KeyBindings
 from pygments.lexer import RegexLexer
 from pygments.token import Keyword, Name, Operator, Number, String, Text
 
 from repl import run_module, env, fungsi_end, fungsi_append, in_fungsi_mode
+
+in_jika_mode = False
 
 class IlyasBatLexer(RegexLexer):
     name = "ilyasbat"
@@ -36,6 +39,16 @@ style = Style.from_dict({
     "prompt": "ansicyan bold",
 })
 
+def jika_append(line: str):
+    buffer.append(line)
+
+def jika_end():
+    global buffer
+    print("[Blok jika tersimpan]")
+    for l in buffer:
+        print("   ", l)
+    buffer = []
+
 def continuation(width, line_number, is_soft_wrap):
     if in_fungsi_mode or in_jika_mode:
         return "    "
@@ -49,6 +62,21 @@ def main():
     print(" - Tekan Enter untuk eksekusi blok input\n")
 
     history = InMemoryHistory()
+
+    kb = KeyBindings()
+
+    @kb.add("enter")
+    def _(event):
+        buff = event.app.current_buffer
+        if buff.validate():
+            event.app.exit(result=buff.text)
+        else:
+            buff.insert_text("\n")
+
+    @kb.add("s-enter")
+    def _(event):
+        event.app.current_buffer.insert_text("\n")
+
     session = PromptSession(
         history=history,
         completer=completer,
@@ -57,6 +85,7 @@ def main():
         style=style,
         multiline=True,
         prompt_continuation=continuation,
+        key_bindings=kb,
     )
 
     buffer = []
@@ -77,6 +106,17 @@ def main():
                 if not line.startswith("    "):
                     line = "    " + line
                 fungsi_append(line)
+            continue
+
+        if inp.startswith("jika "):
+            in_jika_mode = True
+            buffer = []
+            print("[Mulai blok jika]")
+            continue
+
+        if inp.strip() == "selesai" and in_jika_mode:
+            in_jika_mode = False
+            jika_end()
             continue
 
         if in_jika_mode:
