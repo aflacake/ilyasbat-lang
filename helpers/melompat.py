@@ -1,20 +1,13 @@
 # helpers/melompat.py
 
-import sys
-
-def main():
-    if len(sys.argv) < 2:
-        print("Kesalahan: Label tujuan tidak diberikan.")
-        sys.exit(1)
-
-    label = sys.argv[1].strip()
-    if not label:
-        print("Kesalahan: Label kosong.")
-        sys.exit(2)
-
-    print(f"Melompat ke label: {label}")
-
-    sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+def resolve_jump(buffer, target_label):
+    """
+    Cari label dalam buffer, format: 'label <nama>:'
+    Kembalikan indeks baris setelah label ditemukan, 
+    atau None jika tidak ada.
+    """
+    label_syntax = f"label {target_label}:"
+    for idx, line in enumerate(buffer):
+        if line.strip().lower() == label_syntax.lower():
+            return idx + 1
+    return None
