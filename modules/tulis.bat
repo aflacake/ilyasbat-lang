@@ -1,4 +1,2 @@
 @echo off
-REM modules/tulis.bat
-
-echo %*
+python helpers/tulis.py %*
