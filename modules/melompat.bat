@@ -1,12 +1,5 @@
 @echo off
 REM modules/melompat.bat
 
-if "%1"=="melompat" (
-    setlocal enabledelayedexpansion
-
-    for /f "delims=" %%A in ('python helpers\melompat.py "%2"') do (
-        set "target=%%A"
-    )
-
-    endlocal & set "next_label=%target%"
-)
+python helpers\melompat.py %*
+exit /b %ERRORLEVEL%
