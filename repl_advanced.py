@@ -50,10 +50,11 @@ def jika_append(line: str):
     jika_buffer.append(line)
 
 def jika_end():
-    global jika_buffer
+    global jika_buffer, buffer
     print("[Blok jika tersimpan]")
     for l in jika_buffer:
         print("   ", l)
+        buffer.append(l)
     jika_buffer = []
 
 # ----------------- Continuation Prompt -----------------
