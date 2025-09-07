@@ -7,6 +7,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
 from pygments.lexer import RegexLexer
 from pygments.token import Keyword, Name, Operator, Number, String, Text
 
@@ -73,7 +74,7 @@ def main():
         else:
             buff.insert_text("\n")
 
-    @kb.add("s-enter")
+    @kb.add(Keys.ShiftEnter)
     def _(event):
         event.app.current_buffer.insert_text("\n")
 
