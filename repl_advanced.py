@@ -51,12 +51,8 @@ def jika_append(line: str):
     jika_buffer.append(line)
 
 def jika_end():
-    global jika_buffer, buffer
+    global jika_buffer
     print("[Blok jika tersimpan]")
-
-    if not jika_buffer:
-        print("[Kesalahan: Blok jika kosong]")
-        return
 
     header = jika_buffer[0].strip()
     if not header.startswith("jika ") or " maka" not in header:
@@ -145,7 +141,7 @@ def main():
         # ----------------- Mode Jika -----------------
         if inp.startswith("jika "):
             in_jika_mode = True
-            jika_buffer = []
+            jika_buffer = [inp]
             print("[Mulai blok jika]")
             continue
 
