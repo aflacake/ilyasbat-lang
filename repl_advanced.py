@@ -11,6 +11,7 @@ from pygments.lexer import RegexLexer
 from pygments.token import Keyword, Name, Operator, Number, String, Text
 
 from repl import run_module, env, fungsi_end, fungsi_append, in_fungsi_mode
+from helpers.jika import evaluate_condition
 
 # State global
 in_jika_mode = False
@@ -52,9 +53,29 @@ def jika_append(line: str):
 def jika_end():
     global jika_buffer, buffer
     print("[Blok jika tersimpan]")
-    for l in jika_buffer:
-        print("   ", l)
-        buffer.append(l)
+
+    if not jika_buffer:
+        print("[Kesalahan: Blok jika kosong]")
+        return
+
+    header = jika_buffer[0].strip()
+    if not header.startswith("jika ") or " maka" not in header:
+        print("[Kesalahan: Format jika salah]")
+        return
+
+    condition_expr = header[4:].split("maka")[0].strip().split()
+    body = [line.strip() for line in jika_buffer[1:]]
+
+    if evaluate_condition(condition_expr, env):
+        for line in body:
+            parts = line.split()
+            if not parts:
+                continue
+            cmd, args = parts[0], parts[1:]
+            run_module(cmd, args)
+    else:
+        print("[Kondisi tidak terpenuhi, blok dilewati]")
+
     jika_buffer = []
 
 # ----------------- Continuation Prompt -----------------
