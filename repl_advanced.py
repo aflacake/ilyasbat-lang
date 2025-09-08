@@ -50,8 +50,8 @@ def jika_append(line: str):
     global jika_buffer
     jika_buffer.append(line)
 
-def jika_end():
-    global jika_buffer, buffer
+def jika_end(buffer):
+    global jika_buffer
     if not jika_buffer:
         print("[Kesalahan: Blok jika kosong]")
         return
@@ -132,7 +132,7 @@ def main():
 
         if inp.strip() == "selesai" and in_jika_mode:
             in_jika_mode = False
-            jika_end()
+            jika_end(buffer)
             continue
 
         if in_jika_mode:
