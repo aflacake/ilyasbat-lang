@@ -51,27 +51,12 @@ def jika_append(line: str):
     jika_buffer.append(line)
 
 def jika_end():
-    global jika_buffer
-    print("[Blok jika tersimpan]")
-
-    header = jika_buffer[0].strip()
-    if not header.startswith("jika ") or " maka" not in header:
-        print("[Kesalahan: Format jika salah]")
+    global jika_buffer, buffer
+    if not jika_buffer:
+        print("[Kesalahan: Blok jika kosong]")
         return
-
-    condition_expr = header[4:].split("maka")[0].strip().split()
-    body = [line.strip() for line in jika_buffer[1:]]
-
-    if evaluate_condition(condition_expr, env):
-        for line in body:
-            parts = line.split()
-            if not parts:
-                continue
-            cmd, args = parts[0], parts[1:]
-            run_module(cmd, args)
-    else:
-        print("[Kondisi tidak terpenuhi, blok dilewati]")
-
+    print("[Blok jika tersimpan]")
+    buffer.append("\n".join(jika_buffer))
     jika_buffer = []
 
 # ----------------- Continuation Prompt -----------------
@@ -171,11 +156,27 @@ def main():
                 print("[belum ada variabel]")
         elif inp.lower() == "jalan":
             for line in buffer:
-                parts = line.strip().split()
-                if not parts:
-                    continue
-                cmd, args = parts[0], parts[1: ]
-                run_module(cmd, args)
+                if line.startswith("jika "):
+                    lines = line.split("\n")
+                    header = lines[0].split()
+                    from helpers.jika import evaluate_condition
+                    condition = header[1:header.index("maka")] if "maka" in header else []
+                    body = lines[1:]
+                    if evaluate_condition(condition, env):
+                        for body_line in body:
+                            parts = body_line.strip().split()
+                            if not parts:
+                                continue
+                            cmd, args = parts[0], parts[1:]
+                            run_module(cmd, args)
+                    else:
+                        print("[Kondisi tidak terpenuhi, blok dilewati]")
+                else:
+                    parts = line.strip().split()
+                    if not parts:
+                        continue
+                    cmd, args = parts[0], parts[1:]
+                    run_module(cmd, args)
         else:
             for line in inp.splitlines():
                 buffer.append(line.strip())
