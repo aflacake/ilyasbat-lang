@@ -46,11 +46,8 @@ def assign_nested(d, keys, value):
                 d = d.setdefault(key, {})
 
 def parse_key_path(raw_key):
-    parts = []
     tokens = re.split(r"(?<!\[\d{1,10})\.", raw_key)
-    for token in tokens:
-        parts.append(token)
-    return parts
+    return tokens
 
 key_path = parse_key_path(raw_key)
 assign_nested(data, key_path, value)
