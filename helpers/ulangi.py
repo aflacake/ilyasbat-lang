@@ -3,8 +3,9 @@
 import sys
 import subprocess
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 3:
+        print("Kesalahan: Format ulangi salah (butuh jumlah dan perintah).")
         sys.exit(1)
 
     try:
@@ -29,3 +30,7 @@ if __name__ == "__main__":
     except Exception as e:
         print("Kesalahan:", str(e))
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
