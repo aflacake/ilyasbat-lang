@@ -28,13 +28,23 @@ def run_batch_module(name, args):
     env_copy.update({k: str(v) for k, v in env.items()})
 
     try:
-        subprocess.run(
+        result = subprocess.run(
             ["cmd", "/c", module_path] + args,
             check=True,
-            env=env_copy
+            env=env_copy,
+            capture_output=True,
+            text=True
         )
-    except subprocess.CalledProcessError:
+        if result.stdout.strip():
+            print(result.stdout.strip())
+        if result.stderr.strip():
+            print("[stdkesalahan]", result.stderr.strip())
+    except subprocess.CalledProcessError as e:
         print(f"[Gagal menjalankan modul: {name}]")
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
 
 def run_module(cmd, args):
     global in_fungsi_mode, in_jika_mode
