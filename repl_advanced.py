@@ -189,7 +189,7 @@ def main():
                             if not line:
                                 continue
                             buffer.append(line)
-                    print(f"[Modul {filename} dimuat ke buffer]")
+                    print(f"[Modul {filename} dimuat ke penyangga]")
                 except FileNotFoundError:
                     print(f"[Kesalahan: file {filename} tidak ditemukan]")
             else:
