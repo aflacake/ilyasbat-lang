@@ -53,6 +53,8 @@ def run_module(cmd, args):
         return kalku_handler(args)
     elif cmd == "menampilkan":
         return run_batch_module("menampilkan", args)
+    elif cmd == "gema":
+        return run_batch_module("gema", args)
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
