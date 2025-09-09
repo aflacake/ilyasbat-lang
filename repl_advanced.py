@@ -180,10 +180,21 @@ def main():
                         cmd, args = parts[0], parts[1:]
                         run_module(cmd, args)
         else:
-            for line in inp.splitlines():
-                if not line.strip():
-                    continue
-                buffer.append(line)
+            if inp.startswith("impor "):
+                filename = inp.split(maxsplit=1)[1]
+                try:
+                    with open(filename, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            buffer.append(line)
+                    print(f"[Modul {filename} dimuat ke buffer]")
+                except FileNotFoundError:
+                    print(f"[Kesalahan: file {filename} tidak ditemukan]")
+            else:
+                for line in inp.splitlines():
+                    buffer.append(line.strip())
 
 # ----------------- Entry Point -----------------
 if __name__ == "__main__":
