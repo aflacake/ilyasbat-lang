@@ -321,6 +321,9 @@ def main():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--sebaris":
-        run_inline(sys.argv[2:])
-    else:
-        main()
+        cmd = sys.argv[2]
+        args = sys.argv[3:]
+        run_module(cmd, args)
+        sys.exit(0)
+
+    main()
