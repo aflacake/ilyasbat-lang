@@ -265,6 +265,13 @@ def main():
                 fungsi_append(inp)
             continue
 
+        if in_jika_mode:
+            if inp.lower() == "selesai":
+                jika_end()
+            else:
+                jika_append(inp)
+            continue
+
         if inp.lower() == "keluar":
             break
         elif inp.lower() == "reset":
@@ -287,7 +294,12 @@ def main():
         elif inp == "":
             continue
         else:
-            buffer.append(inp)
+            if in_fungsi_mode:
+                fungsi_append(inp)
+            elif in_jika_mode:
+                jika_append(inp)
+            else:
+                buffer.append(inp)
 
 if __name__ == "__main__":
     main()
