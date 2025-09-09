@@ -1,5 +1,6 @@
 # repl.py
 
+import sys
 import os
 import subprocess
 
@@ -244,6 +245,19 @@ def melompat_handler(args, buffer, current_index):
     print(f"[Lompat ke label '{target}']")
     return new_index
 
+def run_inline(argv):
+    """
+    Jalankan satu perintah langsung (untuk impor).
+    Contoh: python repl.py --sebaris gema Halo
+    """
+    if len(argv) < 2:
+        print("[sebaris] argumen tidak cukup")
+        return
+
+    cmd = argv[0]
+    args = argv[1:]
+    run_module(cmd, args)
+
 def main():
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
     print(Fore.CYAN + "Ketik 'keluar' untuk mengakhiri.")
@@ -304,4 +318,7 @@ def main():
                 buffer.append(inp)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "--sebaris":
+        run_inline(sys.argv[2:])
+    else:
+        main()
