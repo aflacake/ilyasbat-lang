@@ -56,6 +56,8 @@ def run_module(cmd, args):
         return run_batch_module("menampilkan", args)
     elif cmd == "gema":
         return run_batch_module("gema", args)
+    elif cmd == "impor":
+       return run_batch_module("impor", args) 
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
