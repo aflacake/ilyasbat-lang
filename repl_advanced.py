@@ -181,7 +181,9 @@ def main():
                         run_module(cmd, args)
         else:
             for line in inp.splitlines():
-                buffer.append(line.strip())
+                if not line.strip():
+                    continue
+                buffer.append(line)
 
 # ----------------- Entry Point -----------------
 if __name__ == "__main__":
