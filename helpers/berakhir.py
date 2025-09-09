@@ -2,10 +2,11 @@
 
 import sys
 
-def main():
+def berakhir():
     print("[Program dihentikan melalui perintah 'berakhir']")
     sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    berakhir()
+
 
