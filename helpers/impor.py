@@ -15,7 +15,7 @@ def jalankan_baris(line):
     args = parts[1:]
 
     subprocess.run(
-        ["python", "repl.py", "--inline", cmd] + args,
+        ["python", "repl.py", "--sebaris", cmd] + args,
         check=False
     )
 
