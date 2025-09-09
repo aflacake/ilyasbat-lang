@@ -295,6 +295,24 @@ def main():
         elif inp.lower() == "reset":
             buffer.clear()
             print(Fore.YELLOW + "[penyangga dikosongkan]")
+        elif inp.lower().startswith("impor "):
+            filename = inp.split(maxsplit=1)[1]
+            try:
+                from helpers import impor
+                import io
+                import contextlib
+
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    impor.main([None, filename])
+                imported_code = buf.getvalue().strip()
+
+                if imported_code:
+                    for line in imported_code.splitlines():
+                        buffer.append(line.strip())
+                print(f"[Mengimpor {filename} -> {len(imported_code.splitlines())} baris ditambahkan ke buffer]")
+            except SystemExit:
+                pass
         elif inp.lower() == "lihat variabel":
             if env:
                 for k, v in env.items():
