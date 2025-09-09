@@ -77,8 +77,24 @@ def run_module(cmd, args):
             return fungsi_append(" ".join([cmd] + args))
         elif in_jika_mode:
             return jika_append(" ".join([cmd] + args))
-        print(f"[Perintah tidak dikenal: {cmd}]")
-        return None
+        else:
+            try:
+                proc = subprocess.run(
+                    ["python", "helpers/fungsi.py", "panggil", cmd] + args,
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                if proc.stdout.strip():
+                    for line in proc.stdout.strip().splitlines():
+                        if line.startswith("__RETURN__="):
+                            print(line.replace("__RETURN__=", "Hasil: "))
+                        else:
+                            print(line)
+                return
+            except subprocess.CalledProcessError:
+                print(f"[Perintah tidak dikenal: {cmd}]")
+                return None
 
 def kalku_handler(line):
     full_expr = " ".join(line)
