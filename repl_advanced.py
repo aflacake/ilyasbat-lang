@@ -73,7 +73,7 @@ def main():
     print("Tips:")
     print(" - Ketik 'keluar' untuk keluar")
     print(" - Tekan Ctrl+J untuk pindah baris")
-    print(" - Tekan Enter untuk eksekusi blok input\n")
+    print(" - Tekan Enter untuk ke baris berikutnya\n")
 
     history = InMemoryHistory()
 
