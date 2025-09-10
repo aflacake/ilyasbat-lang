@@ -7,7 +7,7 @@ KEYWORDS = {
     "fungsi": "[FUNGSI]",
     "kalku": "[KALKU]",
     "jika": "[JIKA]",
-    "menampilkan": "[PRINT]",
+    "menampilkan": "[MENAMPILKAN]",
 }
 
 def load_file(modul_path: str) -> str:
