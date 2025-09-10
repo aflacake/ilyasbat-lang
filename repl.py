@@ -263,6 +263,7 @@ def run_inline(argv):
 def main():
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
     print(Fore.CYAN + "Ketik 'keluar' untuk mengakhiri.")
+    print(Fore.CYAN + "Ketik 'lihat' untuk melihat penyangga.")
     print(Fore.CYAN + "Ketik 'reset' untuk menghapus penyangga.")
     print(Fore.CYAN + "Ketik 'lihat variabel' untuk melihat semua variabel.")
     print(Fore.CYAN + "Ketik 'jalan' untuk menjalankan skrip.")
@@ -292,6 +293,13 @@ def main():
 
         if inp.lower() == "keluar":
             break
+        elif inp.lower() == "lihat":
+            if buffer:
+                print("[Isi penyangga saat ini]")
+                for line in buffer:
+                    print("   ", line)
+            else:
+                print("[Penyangga kosong]")
         elif inp.lower() == "reset":
             buffer.clear()
             print(Fore.YELLOW + "[penyangga dikosongkan]")
@@ -300,9 +308,20 @@ def main():
             try:
                 from helpers import impor
                 imported_code = impor.load_file(filename)
+
                 for line in imported_code.splitlines():
                     buffer.append(line.strip())
-                print(f"[Mengimpor {filename} -> {len(imported_code.splitlines())} baris ditambahkan ke buffer]")
+
+                functions, variables = impor.analyze_code(imported_code)
+                print(f"[Mengimpor {filename}]")
+                print(f" - {len(imported_code.splitlines())} baris ditambahkan ke buffer")
+                if functions:
+                    print(f" - Fungsi terdeteksi: {', '.join(functions)}")
+                if variables:
+                    print(f" - Variabel awal: {', '.join(variables)}")
+                print(f"[Buffer saat ini: {len(buffer)} baris]\n")
+                print("Ketik 'jalan' untuk mengeksekusi, atau 'lihat buffer' untuk menampilkan isi.")
+
             except FileNotFoundError:
                 print(f"[Kesalahan: File {filename} tidak ditemukan]")
         elif inp.lower() == "lihat variabel":
