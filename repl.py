@@ -320,7 +320,7 @@ def main():
                 if variables:
                     print(f" - Variabel awal: {', '.join(variables)}")
                 print(f"[Buffer saat ini: {len(buffer)} baris]\n")
-                print("Ketik 'jalan' untuk mengeksekusi, atau 'lihat buffer' untuk menampilkan isi.")
+                print("Ketik 'jalan' untuk mengeksekusi, atau 'lihat' untuk menampilkan isi.")
 
             except FileNotFoundError:
                 print(f"[Kesalahan: File {filename} tidak ditemukan]")
