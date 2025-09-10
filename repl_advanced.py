@@ -23,7 +23,7 @@ class IlyasBatLexer(RegexLexer):
     tokens = {
         "root": [
             (r"\b(fungsi|gema|impor|kalku|kembalikan|masukkan|melompat|selesai|jalan|reset|keluar|lihat|variabel)\b", Keyword),
-            (r"\b(jika|maka|tulis|menampilkan|mengembalikan|menyimpan|ulangi|berakhir)\b", Keyword),
+            (r"\b(jika|maka|tulis|menampilkan|mengembalikan|menyimpan|ulangi|berakhir|lihat)\b", Keyword),
             (r"[0-9]+", Number),
             (r"\".*?\"", String),
             (r"[a-zA-Z_][a-zA-Z0-9_]*", Name),
