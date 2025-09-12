@@ -1,3 +1,5 @@
+<p align="right">Bahasa: Indonesia</p>
+
 ![IlyasBat.png](https://raw.githubusercontent.com/aflacake/ilyasbat-lang/main/Logo%20IlyasBat.png)
 # IlyasBat – Bahasa Prosedural Mini
 
