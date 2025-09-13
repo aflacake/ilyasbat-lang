@@ -57,13 +57,16 @@ def run_module(cmd, args):
     elif cmd == "gema":
         return run_batch_module("gema", args)
     elif cmd == "impor":
-       return run_batch_module("impor", args) 
+        return run_batch_module("impor", args)
     elif cmd == "berakhir":
         return berakhir_handler(args)
     elif cmd == "tulis":
         return tulis_handler(args)
     elif cmd == "fungsi":
-        return fungsi_start(args)
+        if in_fungsi_mode:
+            return fungsi_append(" ".join([cmd] + args))
+        else:
+            return panggil_fungsi_handler(cmd, args)
     elif cmd == "kembalikan":
         return fungsi_append(" ".join([cmd] + args))
     elif cmd == "jika":
@@ -84,21 +87,14 @@ def run_module(cmd, args):
             return jika_append(" ".join([cmd] + args))
         else:
             try:
-                proc = subprocess.run(
-                    ["python", "helpers/fungsi.py", "panggil", cmd] + args,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                if proc.stdout.strip():
-                    for line in proc.stdout.strip().splitlines():
-                        if line.startswith("__RETURN__="):
-                            print(line.replace("__RETURN__=", "Hasil: "))
-                        else:
-                            print(line)
-                return
-            except subprocess.CalledProcessError:
+                result = call_fungsi_inline(cmd, args, env)
+                print(Fore.CYAN + f"[Hasil fungsi {cmd}] {result}")
+                return result
+            except FileNotFoundError:
                 print(f"[Perintah tidak dikenal: {cmd}]")
+                return None
+            except Exception as e:
+                print(Fore.RED + f"[Kesalahan pemanggilan fungsi: {e}]")
                 return None
 
 def kalku_handler(line):
@@ -131,6 +127,15 @@ def berakhir_handler(args):
 def tulis_handler(args):
     from helpers.tulis import tulis
     tulis(args, env)
+
+def panggil_fungsi_handler(cmd, args):
+    """Tangani pemanggilan fungsi dalam REPL."""
+    try:
+        result = call_fungsi_inline(args[0], args[1:], env)
+        if result is not None:
+            print(Fore.CYAN + f"[Hasil fungsi {args[0]}] {result}")
+    except Exception as e:
+        print(Fore.RED + f"[Kesalahan saat memanggil fungsi {args[0]}: {e}]")
 
 def fungsi_start(args):
     global in_fungsi_mode, fungsi_name, fungsi_args, fungsi_buffer
