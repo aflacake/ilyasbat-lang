@@ -10,7 +10,7 @@ CACHE_DIR = "cache"
 def tambah(a, b): return a + b
 def kurang(a, b): return a - b
 def kali(a, b): return a * b
-def bagi(a, b): return a / b if b != 0 else 0
+def bagi(a, b): return a / b if b != 0 else float("inf")
 def pangkat(a, b): return a ** b
 def maks(a, b): return max(a, b)
 def min(a, b): return min(a, b)
@@ -30,6 +30,7 @@ def get_user_function(name):
                     return num if num is not None else val
             return None
         except subprocess.CalledProcessError:
+            print(f"[Peringatan: pemanggilan fungsi user '{name}' gagal]")
             return None
     return wrapper
 
@@ -39,9 +40,8 @@ def try_parse_number(s):
             return float(s)
         else:
             return int(s)
-    except:
+    except Exception:
         return None
-
 
 def is_user_function(name):
     path = os.path.join(CACHE_DIR, name + ".ibat")
@@ -49,7 +49,7 @@ def is_user_function(name):
 
 def kalkulasi(expr: str, env: dict):
     if "=" not in expr:
-        print("[Format ekspresi salah: gunakan '=' untuk penugasan]")
+        print("[Kesalahan: gunakan format 'variabel = ekspresi']")
         return None, None
 
     var, raw_expr = map(str.strip, expr.split("=", 1))
@@ -67,6 +67,7 @@ def kalkulasi(expr: str, env: dict):
         "min": min
     }
 
+    unknown = []
     for token in tokens:
         if token in env:
             names[token] = env[token]
@@ -74,12 +75,19 @@ def kalkulasi(expr: str, env: dict):
             continue
         elif token in ["True", "False"]:
             continue
-        else:
+        elif is_user_function(token):
             funcs[token] = get_user_function(token)
+        else:
+            unknown.append(token)
+
+    if unknown:
+        print(f"[Peringatan: simbol tidak dikenal -> {', '.join(unknown)}]")
 
     try:
         result = simple_eval(raw_expr, names=names, functions=funcs)
         result = round(result, 2) if isinstance(result, float) else result
+
+        print(f"[Kalkulasi] {var} = {raw_expr} -> {result}")
         return var, result
     except Exception as e:
         print(f"[Kesalahan kalkulasi: {e}]")
@@ -89,17 +97,17 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
+        print("[Kesalahan: ekspresi tidak diberikan]")
         sys.exit(1)
 
     expr = " ".join(sys.argv[1:])
-
     env = {}
 
     var, result = kalkulasi(expr, env)
 
     if var is not None:
         env[var] = result
-        print(f"[DEBUG] {var} = {result}")
+        print(f"[Selesai] {var} disimpan dengan nilai {result}")
         print(result)
     else:
         sys.exit(1)
