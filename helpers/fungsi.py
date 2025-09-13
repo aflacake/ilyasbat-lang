@@ -2,6 +2,7 @@
 
 import sys
 import os
+import copy
 from simpleeval import simple_eval
 
 CACHE_DIR = "cache"
@@ -35,32 +36,24 @@ def tulis_fungsi(nama, args, lines):
     print(f"[Fungsi '{nama}' berhasil disimpan ke {path}]")
 
 
-def panggil_fungsi(nama, arg_values):
-    """Panggil fungsi dengan argumen tertentu (CLI arg datang sebagai string)."""
-    path = os.path.join(CACHE_DIR, nama + ".ibat")
+def load_fungsi_def(name):
+    """Load definisi fungsi dari cache. Return (arg_names, body_lines)."""
+    path = os.path.join(CACHE_DIR, name + ".ibat")
     if not os.path.exists(path):
-        print(f"Fungsi '{nama}' tidak ditemukan.")
-        sys.exit(1)
+        raise FileNotFoundError(f"Fungsi '{name}' tidak ditemukan di {CACHE_DIR}")
 
     with open(path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
     if not lines or not lines[0].startswith("#ARGS"):
-        print("Format fungsi tidak valid.")
-        sys.exit(1)
+        raise ValueError(f"Format fungsi '{name}' tidak valid.")
 
     arg_names = lines[0].strip().split()[1:]
-    if len(arg_values) != len(arg_names):
-        print(f"Jumlah argumen tidak sesuai. Diberikan {len(arg_values)}, seharusnya {len(arg_names)}")
-        sys.exit(1)
-
-    coerced_values = [_coerce_number(v) for v in arg_values]
-    env = dict(zip(arg_names, coerced_values))
-
-    return execute_fungsi(lines[1:], env)
+    body_lines = lines[1:]
+    return arg_names, body_lines
 
 
-def execute_fungsi(lines, env):
+def execute_fungsi(lines, env, debug=False):
     """
     Eksekusi isi fungsi.
     - lines: list baris perintah fungsi
@@ -68,29 +61,77 @@ def execute_fungsi(lines, env):
     Return: nilai dari 'kembalikan'
     """
     return_value = None
+    locals_env = copy.deepcopy(env)
 
     for raw in lines:
         line = raw.strip()
-        if not line or line.startswith("#"):
+        if not line or line.startswith("KOM"):
             continue
+
+        if debug:
+            print(f"[DEBUG] Eksekusi baris: {line}")
 
         if line.lower().startswith("kembalikan"):
             parts = line.split(maxsplit=1)
             expr = parts[1].strip() if len(parts) > 1 else ""
             try:
-                return_value = simple_eval(expr, names=env)
+                return_value = simple_eval(expr, names=locals_env)
             except Exception:
-                return_value = env.get(expr, None)
+                return_value = locals_env.get(expr, None)
             break
 
         if "=" in line:
             var, expr = map(str.strip, line.split("=", 1))
             try:
-                env[var] = simple_eval(expr, names=env)
+                locals_env[var] = simple_eval(expr, names=locals_env)
             except Exception:
-                env[var] = expr
+                locals_env[var] = expr
             continue
+
     return return_value
+
+
+def panggil_fungsi(nama, arg_values, debug=False):
+    """Panggil fungsi dari CLI subprocess."""
+    try:
+        arg_names, body = load_fungsi_def(nama)
+    except Exception as e:
+        print(f"[Kesalahan panggil fungsi: {e}]")
+        sys.exit(1)
+
+    if len(arg_values) != len(arg_names):
+        print(f"[Kesalahan] Jumlah argumen '{nama}' salah. "
+              f"Diberikan {len(arg_values)}, seharusnya {len(arg_names)}")
+        sys.exit(1)
+
+    coerced_values = [_coerce_number(v) for v in arg_values]
+    env = dict(zip(arg_names, coerced_values))
+
+    retval = execute_fungsi(body, env, debug=debug)
+    return retval
+
+
+def call_fungsi_inline(name, arg_values, caller_env=None, debug=False):
+    """
+    API in-process: panggil fungsi langsung tanpa subprocess.
+    - name: nama fungsi
+    - arg_values: list argumen
+    - caller_env: dict variabel global (boleh None)
+    """
+    arg_names, body = load_fungsi_def(name)
+
+    if len(arg_values) != len(arg_names):
+        raise ValueError(f"Jumlah argumen '{name}' salah. "
+                         f"Diberikan {len(arg_values)}, seharusnya {len(arg_names)}")
+
+    coerced_values = [_coerce_number(v) for v in arg_values]
+
+    locals_env = {}
+    if caller_env:
+        locals_env.update(caller_env)
+    locals_env.update(dict(zip(arg_names, coerced_values)))
+
+    return execute_fungsi(body, locals_env, debug=debug)
 
 
 def main():
