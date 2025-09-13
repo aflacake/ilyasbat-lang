@@ -16,6 +16,7 @@ def maks(a, b): return max(a, b)
 def min(a, b): return min(a, b)
 
 def get_user_function(name):
+    """Wrapper supaya fungsi user bisa dipanggil dalam kalku."""
     def wrapper(*args):
         try:
             result = subprocess.check_output(
@@ -30,26 +31,27 @@ def get_user_function(name):
                     return num if num is not None else val
             return None
         except subprocess.CalledProcessError:
-            print(f"[Peringatan: pemanggilan fungsi user '{name}' gagal]")
             return None
     return wrapper
 
 def try_parse_number(s):
     try:
-        if '.' in s:
+        if "." in s:
             return float(s)
-        else:
-            return int(s)
+        return int(s)
     except Exception:
         return None
 
 def is_user_function(name):
+    """Cek apakah ada definisi fungsi user di cache."""
     path = os.path.join(CACHE_DIR, name + ".ibat")
     return os.path.exists(path)
 
-def kalkulasi(expr: str, env: dict):
+def kalkulasi(expr: str, env: dict, verbose: bool = False):
+    """Evaluasi ekspresi kalkulasi. Return (var, result)."""
     if "=" not in expr:
-        print("[Kesalahan: gunakan format 'variabel = ekspresi']")
+        if verbose:
+            print("[Kesalahan: gunakan format 'variabel = ekspresi']")
         return None, None
 
     var, raw_expr = map(str.strip, expr.split("=", 1))
@@ -64,7 +66,7 @@ def kalkulasi(expr: str, env: dict):
         "bagi": bagi,
         "pangkat": pangkat,
         "maks": maks,
-        "min": min
+        "min": min,
     }
 
     unknown = []
@@ -80,17 +82,20 @@ def kalkulasi(expr: str, env: dict):
         else:
             unknown.append(token)
 
-    if unknown:
+    if verbose and unknown:
         print(f"[Peringatan: simbol tidak dikenal -> {', '.join(unknown)}]")
 
     try:
         result = simple_eval(raw_expr, names=names, functions=funcs)
         result = round(result, 2) if isinstance(result, float) else result
 
-        print(f"[Kalkulasi] {var} = {raw_expr} -> {result}")
+        if verbose:
+            print(f"[Kalkulasi] {var} = {raw_expr} -> {result}")
+
         return var, result
     except Exception as e:
-        print(f"[Kesalahan kalkulasi: {e}]")
+        if verbose:
+            print(f"[Kesalahan kalkulasi: {e}]")
         return None, None
 
 if __name__ == "__main__":
@@ -103,7 +108,7 @@ if __name__ == "__main__":
     expr = " ".join(sys.argv[1:])
     env = {}
 
-    var, result = kalkulasi(expr, env)
+    var, result = kalkulasi(expr, env, verbose=True)
 
     if var is not None:
         env[var] = result
@@ -111,3 +116,4 @@ if __name__ == "__main__":
         print(result)
     else:
         sys.exit(1)
+
