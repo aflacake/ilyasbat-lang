@@ -4,6 +4,8 @@ import sys
 import os
 import subprocess
 
+from helpers.fungsi import call_fungsi_inline
+
 from colorama import init, Fore, Style
 init(autoreset=True)
 
@@ -126,7 +128,10 @@ def berakhir_handler(args):
 
 def tulis_handler(args):
     from helpers.tulis import tulis
-    tulis(args, env)
+    if args and args[0] == "fungsi":
+        return fungsi_start(args[1:])
+    else:
+        return tulis(args, env)
 
 def panggil_fungsi_handler(cmd, args):
     """Tangani pemanggilan fungsi dalam REPL."""
