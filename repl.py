@@ -284,6 +284,17 @@ def execute_buffer(buffer, env):
             if stop:
                 return retval
             i = next_i
+        elif line.startswith("ulangi"):
+            inner = []
+            j = i
+            while j < len(buffer):
+                inner.append(buffer[j])
+                if buffer[j].strip().lower() == "selesai":
+                    break
+                j += 1
+            block = parse_ulangi(inner)
+            execute_ulangi(block, env, execute_line)
+            i = j + 1
         else:
             retval, stop = execute_line(buffer[i], env)
             if stop:
