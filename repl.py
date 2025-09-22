@@ -4,7 +4,9 @@ import sys
 import os
 import subprocess
 
-from helpers.fungsi import call_fungsi_inline, execute_fungsi
+from helpers.fungsi import execute_line, call_fungsi_inline, execute_fungsi
+from helpers.jika import parse_if_block, execute_if_block
+from helpers.ulangi import parse_ulangi, execute_ulangi
 
 from colorama import init, Fore, Style
 init(autoreset=True)
@@ -284,6 +286,7 @@ def execute_buffer(buffer, env):
             if stop:
                 return retval
             i = next_i
+
         elif line.startswith("ulangi"):
             inner = []
             j = i
@@ -295,6 +298,7 @@ def execute_buffer(buffer, env):
             block = parse_ulangi(inner)
             execute_ulangi(block, env, execute_line)
             i = j + 1
+
         else:
             retval, stop = execute_line(buffer[i], env)
             if stop:
