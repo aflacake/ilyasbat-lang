@@ -69,7 +69,15 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "gema":
-        print(" ".join(args))
+        out_parts = []
+        for a in args:
+            if (a.startswith('"') and a.endswith('"')) or (a.startswith("'") and a.endswith("'")):
+                out_parts.append(a[1:-1])
+            elif a in env:
+                out_parts.append(str(env[a]))
+            else:
+                out_parts.append(a)
+        print(" ".join(out_parts))
         return None, False
 
     print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
