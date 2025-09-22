@@ -70,13 +70,13 @@ def execute_line(line, env, debug=False):
 
     if cmd == "gema":
         out_parts = []
-        for a in args:
-            if (a.startswith('"') and a.endswith('"')) or (a.startswith("'") and a.endswith("'")):
-                out_parts.append(a[1:-1])
-            elif a in env:
-                out_parts.append(str(env[a]))
+        for arg in args:
+            if (arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'")):
+                out_parts.append(arg[1:-1])
+            elif arg in env:
+                out_parts.append(str(env[arg]))
             else:
-                out_parts.append(a)
+                out_parts.append(arg)
         print(" ".join(out_parts))
         return None, False
 
