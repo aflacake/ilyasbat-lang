@@ -341,13 +341,12 @@ def main():
             else:
                 print(Fore.YELLOW + "[belum ada variabel]")
         elif inp.lower() == "jalan":
-            for line in buffer:
-                parts = line.strip().split()
-                if not parts:
-                    continue
-                cmd = parts[0]
-                args = parts[1:]
-                run_module(cmd, args)
+                if in_fungsi_mode:
+                    print("[Kesalahan: Tidak dalam mode fungsi]")
+                else:
+                    print("[Jalankan buffer...]")
+                    execute_fungsi(buffer, env, debug=True)
+                    buffer.clear()
         elif inp == "":
             continue
         else:
