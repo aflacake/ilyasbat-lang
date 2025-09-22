@@ -270,6 +270,27 @@ def run_inline(argv):
     args = argv[1:]
     run_module(cmd, args)
 
+def execute_buffer(buffer, env):
+    i = 0
+    while i < len(buffer):
+        line = buffer[i].strip()
+        if not line:
+            i += 1
+            continue
+
+        if line.startswith("jika"):
+            block, next_i = parse_if_block(buffer, i)
+            retval, stop = execute_if_block(block, env, execute_line)
+            if stop:
+                return retval
+            i = next_i
+        else:
+            retval, stop = execute_line(buffer[i], env)
+            if stop:
+                return retval
+            i += 1
+
+
 def main():
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
     print(Fore.CYAN + "Ketik 'keluar' untuk mengakhiri.")
@@ -346,7 +367,7 @@ def main():
                 else:
                     print("[Jalankan buffer...]")
                     from helpers.fungsi import execute_fungsi
-                    execute_fungsi(buffer, env, debug=True)
+                    execute_buffer(buffer, env)
                     buffer.clear()
         elif inp == "":
             continue
