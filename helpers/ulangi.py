@@ -1,36 +1,97 @@
 # helpers/ulangi.py
 
 import sys
-import subprocess
 
-def main():
-    if len(sys.argv) < 3:
-        print("Kesalahan: Format ulangi salah (butuh jumlah dan perintah).")
-        sys.exit(1)
+from helpers.jika import evaluate_condition
 
-    try:
-        count = int(sys.argv[1])
-        command = sys.argv[2:]
 
-        for i in range(count):
-            result = subprocess.run(
-                ["cmd", "/c", "main.bat"] + command,
-                capture_output=True,
-                text=True
-            )
+def ulangi_n(count, inner_lines, env, executor):
+    """ulangi n kali"""
+    for i in range(count):
+        env["_i"] = i
+        for line in inner_lines:
+            executor(line, env)
 
-            if result.stdout.strip():
-                print(result.stdout.strip())
-            if result.stderr.strip():
-                print(result.stderr.strip(), file=sys.stderr)
 
-            if result.returncode != 0:
-                sys.exit(result.returncode)
+def ulangi_sampai(cond_tokens, body_lines, env, executor):
+    """ulangi sampai kondisi bernilai True"""
+    while not evaluate_condition(cond_tokens, env):
+        for line in body_lines:
+            executor(line, env)
 
-    except Exception as e:
-        print("Kesalahan:", str(e))
-        sys.exit(1)
+
+def ulangi_untuk(var, start, end, body_lines, env, executor):
+    """ulangi untuk var dari start..end"""
+    for i in range(start, end + 1):
+        env[var] = i
+        for line in body_lines:
+            executor(line, env)
+
+
+def parse_ulangi(lines):
+    """
+    Normalisasi blok ulangi.
+    Input contoh:
+        ["ulangi 3", "gema Halo", "selesai"]
+        ["ulangi sampai x > 5", "gema Loop", "selesai"]
+        ["ulangi untuk i = 1..3", "gema Hai", "selesai"]
+
+    Output: dict {type, args, body}
+    """
+    if not lines:
+        return None
+
+    header = lines[0].strip().split()
+    cmd = header[0].lower()
+    if cmd != "ulangi":
+        return None
+
+    if len(header) >= 2 and header[1].isdigit():
+        # ulangi N
+        return {"type": "n", "count": int(header[1]), "body": lines[1:]}
+
+    if len(header) >= 3 and header[1].lower() == "sampai":
+        return {"type": "sampai", "cond": header[2:], "body": lines[1:]}
+
+    if len(header) >= 3 and header[1].lower() == "untuk":
+        # Format: ulangi untuk i = 1..5
+        try:
+            var = header[2]
+            eq = header[3]
+            rng = header[4]
+            start, end = map(int, rng.split(".."))
+            return {"type": "untuk", "var": var, "start": start, "end": end, "body": lines[1:]}
+        except Exception as e:
+            print(f"[Kesalahan parsing ulangi untuk: {e}]")
+            return None
+
+    return None
+
+
+def execute_ulangi(block, env, executor):
+    """Eksekusi blok ulangi hasil parse_ulangi"""
+    if not block:
+        return
+    t = block["type"]
+    if t == "n":
+        ulangi_n(block["count"], block["body"], env, executor)
+    elif t == "sampai":
+        ulangi_sampai(block["cond"], block["body"], env, executor)
+    elif t == "untuk":
+        ulangi_untuk(block["var"], block["start"], block["end"], block["body"], env, executor)
+    else:
+        print(f"[Kesalahan] Jenis ulangi tidak dikenal: {t}")
 
 
 if __name__ == "__main__":
-    main()
+    # Tes cepat
+    env = {"x": 0}
+
+    def executor(line, e):
+        print("[EKSEKUSI]", line)
+
+    block1 = parse_ulangi(["ulangi 3", "gema Halo", "selesai"])
+    execute_ulangi(block1, env, executor)
+
+    block2 = parse_ulangi(["ulangi untuk i = 1..3", "gema Hai", "selesai"])
+    execute_ulangi(block2, env, executor)
