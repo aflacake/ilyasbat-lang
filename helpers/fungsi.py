@@ -94,3 +94,29 @@ def execute_fungsi(lines, env, debug=False):
             break
 
     return return_value
+
+def call_fungsi_inline(name, arg_values, caller_env=None, debug=False):
+    """
+    Panggil fungsi terdefinisi dengan argumen, dalam scope terpisah.
+    """
+    from helpers.fungsi_registry import load_fungsi_def
+
+    arg_names, body = load_fungsi_def(name)
+
+    if len(arg_values) != len(arg_names):
+        raise ValueError(
+            f"Jumlah argumen untuk fungsi '{name}' salah. "
+            f"Diberikan {len(arg_values)}, seharusnya {len(arg_names)}"
+        )
+
+    # coercion argumen
+    coerced_values = [_coerce_number(v) for v in arg_values]
+
+    # siapkan environment lokal
+    locals_env = {}
+    if caller_env:
+        locals_env.update(caller_env)
+    locals_env.update(dict(zip(arg_names, coerced_values)))
+
+    return execute_fungsi(body, locals_env, debug=debug)
+
