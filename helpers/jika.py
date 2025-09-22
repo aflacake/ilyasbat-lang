@@ -245,7 +245,7 @@ def execute_condition_blocks(blocks, env, executor):
             if evaluate_condition(cond, env):
                 for line in body:
                     executor(line, env)
-                retur
+                return
         elif btype == "else":
             for line in body:
                 executor(line, env)
