@@ -4,7 +4,7 @@ import sys
 import os
 import subprocess
 
-from helpers.fungsi import call_fungsi_inline
+from helpers.fungsi import call_fungsi_inline, execute_fungsi
 
 from colorama import init, Fore, Style
 init(autoreset=True)
@@ -345,6 +345,7 @@ def main():
                     print("[Kesalahan: Tidak dalam mode fungsi]")
                 else:
                     print("[Jalankan buffer...]")
+                    from helpers.fungsi import execute_fungsi
                     execute_fungsi(buffer, env, debug=True)
                     buffer.clear()
         elif inp == "":
