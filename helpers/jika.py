@@ -110,87 +110,60 @@ def evaluate_condition(tokens, env):
             return False
 
 
-def parse_if_block(lines, start_index=0):
-    """
-    Parse blok 'jika' (bersama jikalain/lainnya) dimulai di lines[start_index].
-    Mengembalikan (block, next_index) dimana next_index adalah posisi setelah 'selesai'
-    atau len(lines) bila 'selesai' tidak ditemukan.
-
-    block format:
-    {
-      "type": "if_block",
-      "branches": [
-         {"type":"if"|"elif"|"else", "cond": [tokens] or None, "body": [lines...]},
-         ...
-      ]
-    }
-    """
-    i = start_index
-    n = len(lines)
-    if i >= n:
-        return None, i
-
-    first = lines[i].strip()
-    if not first:
-        return None, i
-    first_parts = first.split()
-    cmd0 = first_parts[0].lower()
-    if cmd0 not in ("jika",):
-        return None, i
-
-    branches = []
-    current_branch = None
-
-    while i < n:
-        raw = lines[i].rstrip("\n")
-        stripped = raw.strip()
-        if not stripped:
-            if current_branch is not None:
-                current_branch["body"].append(raw)
-            i += 1
-            continue
-
-        parts = stripped.split()
-        cmd = parts[0].lower()
-        args = parts[1:]
-
-        if cmd == "jika":
-            if current_branch is not None:
-                branches.append(current_branch)
-            current_branch = {"type": "if", "cond": args, "body": []}
-        elif cmd in ("jikalain", "elseif"):
-            if current_branch is not None:
-                branches.append(current_branch)
-            current_branch = {"type": "elif", "cond": args, "body": []}
-        elif cmd in ("lainnya", "else"):
-            if current_branch is not None:
-                branches.append(current_branch)
-            current_branch = {"type": "else", "cond": None, "body": []}
-        elif cmd == "selesai":
-            if current_branch is not None:
-                branches.append(current_branch)
-            return {"type": "if_block", "branches": branches}, i + 1
-        else:
-            if current_branch is None:
-                i += 1
-                continue
-            current_branch["body"].append(raw)
-        i += 1
-
-    if current_branch is not None:
-        branches.append(current_branch)
-    return {"type": "if_block", "branches": branches}, i
-
-
 def normalize_condition_blocks(lines):
     """
-    Simple wrapper: kalau caller sudah memberikan hanya baris-blok (tanpa 'selesai'),
-    panggil parse_if_block dari 0 dan kembalikan struktur branches.
+    Ambil semua blok kondisi dari sebuah if-elif-else.
+    Hasil: list of dict {type, cond, body}
     """
-    block, _ = parse_if_block(lines, 0)
-    if not block:
-        return []
-    return block["branches"]
+    blocks = []
+    current_type = None
+    current_cond = []
+    current_body = []
+
+    for line in lines:
+        parts = line.strip().split()
+        if not parts:
+            continue
+        cmd = parts[0].lower()
+
+        if cmd in ("jika", "jikalain", "lainnya"):
+            if current_type is not None:
+                blocks.append({
+                    "type": current_type,
+                    "cond": current_cond,
+                    "body": current_body,
+                })
+            if cmd == "lainnya":
+                current_type = "else"
+                current_cond = []
+            else:
+                current_type = cmd
+                if "maka" in parts:
+                    idx = parts.index("maka")
+                    current_cond = parts[1:idx]
+                else:
+                    current_cond = parts[1:]
+            current_body = []
+        elif cmd == "selesai":
+            if current_type is not None:
+                blocks.append({
+                    "type": current_type,
+                    "cond": current_cond,
+                    "body": current_body,
+                })
+            break
+        else:
+            current_body.append(line)
+
+    return blocks
+
+
+def parse_if_block(lines, start_index=0):
+    """
+    Wrapper: parse if-block mulai dari start_index.
+    """
+    blocks = normalize_condition_blocks(lines[start_index:])
+    return blocks, len(lines)
 
 
 def execute_if_block(block, env, executor):
