@@ -1,23 +1,24 @@
 # helpers/jika.py
 
-import sys
 import operator
 
 ops = {
-    '==': operator.eq,
-    '!=': operator.ne,
-    '>': operator.gt,
-    '<': operator.lt,
-    '>=': operator.ge,
-    '<=': operator.le,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">": operator.gt,
+    "<": operator.lt,
+    ">=": operator.ge,
+    "<=": operator.le,
 }
 
+
 def try_convert(val, env):
+    """Coba konversi string ke angka/string/variabel"""
     try:
-        if '.' in val:
+        if "." in val:
             return float(val)
         return int(val)
-    except:
+    except Exception:
         if val.startswith('"') and val.endswith('"'):
             return val[1:-1]
         if val.startswith("'") and val.endswith("'"):
@@ -30,7 +31,9 @@ def try_convert(val, env):
                 return 0
         return val
 
+
 def evaluate_condition(args, env):
+    """Evaluasi ekspresi logika sederhana"""
     if len(args) < 3:
         print("[Kesalahan: Kondisi tidak lengkap]")
         return False
@@ -49,5 +52,82 @@ def evaluate_condition(args, env):
         print(f"[Kesalahan saat evaluasi kondisi: {e}]")
         return False
 
-if __name__ == '__main__':
-    print("Modul 'jika' dipanggil langsung, gunakan dari REPL.")
+
+def normalize_condition_blocks(lines):
+    """
+    Normalisasi blok if/elseif/else.
+    Input: list baris (["jika x == 1", "gema A", "jikalain x == 2", ...])
+    Output: struktur tree dict
+    """
+    blocks = []
+    current = None
+
+    for raw in lines:
+        line = raw.strip()
+        if not line:
+            continue
+
+        parts = line.split()
+        cmd, args = parts[0].lower(), parts[1:]
+
+        if cmd == "jika":
+            if current:
+                blocks.append(current)
+            current = {"type": "if", "cond": args, "body": []}
+        elif cmd == "jikalain":
+            if current:
+                blocks.append(current)
+            current = {"type": "elif", "cond": args, "body": []}
+        elif cmd == "lainnya":
+            if current:
+                blocks.append(current)
+            current = {"type": "else", "cond": None, "body": []}
+        else:
+            if current:
+                current["body"].append(line)
+
+    if current:
+        blocks.append(current)
+
+    return blocks
+
+
+def execute_condition_blocks(blocks, env, executor):
+    """
+    Eksekusi blok if/elseif/else.
+    - blocks: hasil normalize_condition_blocks
+    - env: dict variabel
+    - executor: callback untuk jalankan body (misalnya execute_line)
+    """
+    for block in blocks:
+        if block["type"] == "if":
+            if evaluate_condition(block["cond"], env):
+                for b in block["body"]:
+                    executor(b, env)
+                return
+        elif block["type"] == "elif":
+            if evaluate_condition(block["cond"], env):
+                for b in block["body"]:
+                    executor(b, env)
+                return
+        elif block["type"] == "else":
+            for b in block["body"]:
+                executor(b, env)
+            return
+    # Jika tidak ada yang cocok, lewati saja
+    return
+
+
+if __name__ == "__main__":
+    # Tes cepat
+    env = {"x": 2}
+    lines = [
+        "jika x == 1",
+        "gema Satu",
+        "jikalain x == 2",
+        "gema Dua",
+        "lainnya",
+        "gema Lain",
+    ]
+    blocks = normalize_condition_blocks(lines)
+    execute_condition_blocks(blocks, env, lambda l, e: print("[EKSEKUSI]", l))
