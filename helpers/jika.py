@@ -228,6 +228,42 @@ def execute_if_block(block, env, executor):
     return None, False
 
 
+def parse_if_block(buffer, start_index):
+    """
+    Ambil blok jika/jikalain/lainnya mulai dari start_index
+    sampai sebelum baris kosong atau sebelum perintah lain (selain jikalain/lainnya).
+    """
+    lines = []
+    i = start_index
+    while i < len(buffer):
+        line = buffer[i].strip()
+        if not line:
+            break
+        if line.startswith("jika") or line.startswith("jikalain") or line.startswith("lainnya"):
+            lines.append(line)
+            i += 1
+            continue
+        if lines:
+            lines.append(line)
+            i += 1
+        else:
+            break
+        if i < len(buffer):
+            nxt = buffer[i].strip()
+            if nxt and not (nxt.startswith("jikalain") or nxt.startswith("lainnya")) and not nxt.startswith(" "):
+                break
+    blocks = normalize_condition_blocks(lines)
+    return blocks, i
+
+
+def execute_if_block(blocks, env, executor):
+    """
+    Jalankan hasil parse_if_block.
+    executor: callback untuk 1 baris (biasanya execute_line)
+    """
+    execute_condition_blocks(blocks, env, executor)
+    return None, False
+
 if __name__ == "__main__":
     lines = [
         "jika x == 1",
