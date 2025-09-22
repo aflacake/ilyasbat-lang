@@ -229,6 +229,29 @@ def parse_if_block(buffer, start_index):
     return blocks, i
 
 
+def execute_condition_blocks(blocks, env, executor):
+    """
+    Jalankan blok kondisi hasil normalize_condition_blocks.
+    - blocks: list of dict {type, cond, body}
+    - env: dictionary variabel
+    - executor: fungsi eksekusi baris (misal execute_line)
+    """
+    for block in blocks:
+        btype = block["type"]
+        cond = block["cond"]
+        body = block["body"]
+
+        if btype in ("jika", "jikalain"):
+            if evaluate_condition(cond, env):
+                for line in body:
+                    executor(line, env)
+                retur
+        elif btype == "else":
+            for line in body:
+                executor(line, env)
+            return
+
+
 def execute_if_block(blocks, env, executor):
     """
     Jalankan hasil parse_if_block.
