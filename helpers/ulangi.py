@@ -46,25 +46,28 @@ def parse_ulangi(lines):
     if cmd != "ulangi":
         return None
 
+    body = [ln for ln in lines[1:] if ln.strip().lower() != "selesai"]
+
     if len(header) >= 2 and header[1].isdigit():
-        # ulangi N
-        return {"type": "n", "count": int(header[1]), "body": lines[1:]}
+        return {"type": "n", "count": int(header[1]), "body": body}
 
     if len(header) >= 3 and header[1].lower() == "sampai":
-        return {"type": "sampai", "cond": header[2:], "body": lines[1:]}
+        return {"type": "sampai", "cond": header[2:], "body": body}
 
-    if len(header) >= 3 and header[1].lower() == "untuk":
+    if len(header) >= 5 and header[1].lower() == "untuk":
         # Format: ulangi untuk i = 1..5
         try:
             var = header[2]
-            eq = header[3]
+            if header[3] != "=":
+                raise ValueError("Format ulangi untuk harus 'var = start..end'")
             rng = header[4]
             start, end = map(int, rng.split(".."))
-            return {"type": "untuk", "var": var, "start": start, "end": end, "body": lines[1:]}
+            return {"type": "untuk", "var": var, "start": start, "end": end, "body": body}
         except Exception as e:
             print(f"[Kesalahan parsing ulangi untuk: {e}]")
             return None
 
+    print(f"[Kesalahan] Sintaks ulangi tidak dikenali: {' '.join(header)}")
     return None
 
 
