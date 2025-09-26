@@ -8,6 +8,8 @@ from helpers.fungsi import execute_line, call_fungsi_inline, execute_fungsi
 from helpers.jika import parse_if_block, execute_if_block
 from helpers.ulangi import parse_ulangi, execute_ulangi
 from helpers.parser import parse_buffer, exec_tree
+from helpers.menampilkan import menampilkan_inline
+from helpers.masukkan import masukkan_inline
 
 from colorama import init, Fore, Style
 init(autoreset=True)
@@ -118,12 +120,7 @@ def tampilkan_handler(args):
     if not args:
         print("[Tidak ada argumen untuk menampilkan]")
         return
-
-    key = args[0]
-    if key in env:
-        print(env[key])
-    else:
-        print(f"[{key} tidak ditemukan]")
+    menampilkan_inline(args, env)
 
 def berakhir_handler(args):
     from helpers.berakhir import berakhir
@@ -225,23 +222,9 @@ def masukkan_handler(args):
     if not args:
         print("[Kesalahan: Nama variabel tidak diberikan untuk masukkan]")
         return
-
     varname = args[0]
-
-    try:
-        result = subprocess.check_output(
-            ["python", "helpers/masukkan.py", varname],
-            text=True
-        ).strip()
-
-        if "=" in result:
-            var, val = result.split("=", 1)
-            env[var] = val
-            print(Fore.CYAN + f"[DEBUG] {var} = {val}")
-        else:
-            print(result)
-    except subprocess.CalledProcessError:
-        print(Fore.RED + "[Kesalahan saat menjalankan masukkan]")
+    masukkan_inline(varname, env)
+    print(f"[DEBUG] {varname} = {env[varname]}")
 
 def melompat_handler(args, buffer, current_index):
     from helpers.melompat import resolve_jump
