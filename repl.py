@@ -7,6 +7,7 @@ import subprocess
 from helpers.fungsi import execute_line, call_fungsi_inline, execute_fungsi
 from helpers.jika import parse_if_block, execute_if_block
 from helpers.ulangi import parse_ulangi, execute_ulangi
+from helpers.parser import parse_buffer, exec_tree
 
 from colorama import init, Fore, Style
 init(autoreset=True)
@@ -273,37 +274,8 @@ def run_inline(argv):
     run_module(cmd, args)
 
 def execute_buffer(buffer, env):
-    i = 0
-    while i < len(buffer):
-        line = buffer[i].strip()
-        if not line:
-            i += 1
-            continue
-
-        if line.startswith("jika"):
-            block, next_i = parse_if_block(buffer, i)
-            retval, stop = execute_if_block(block, env, execute_line)
-            if stop:
-                return retval
-            i = next_i
-
-        elif line.startswith("ulangi"):
-            inner = []
-            j = i
-            while j < len(buffer):
-                inner.append(buffer[j])
-                if buffer[j].strip().lower() == "selesai":
-                    break
-                j += 1
-            block = parse_ulangi(inner)
-            execute_ulangi(block, env, execute_line)
-            i = j + 1
-
-        else:
-            retval, stop = execute_line(buffer[i], env)
-            if stop:
-                return retval
-            i += 1
+    tree = parse_buffer(buffer)
+    exec_tree(tree, env)
 
 
 def main():
