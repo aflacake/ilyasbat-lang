@@ -110,3 +110,56 @@ def exec_tree(nodes, env):
                 print(f"[Loop] Mode tidak dikenal: {mode}")
 
         i += 1
+
+
+def parse_block(lines, i, end_token=")"):
+    """
+    Parse block dimulai dari baris i (sudah di dalam hidup/mati).
+    Akan berhenti kalau ketemu baris berisi end_token.
+    """
+    block = []
+    i += 1
+    while i < len(lines):
+        line = lines[i].strip()
+        if line == end_token:
+            return block, i + 1
+        block.append(line)
+        i += 1
+    raise SyntaxError(f"Blok tidak ditutup dengan {end_token}")
+
+
+def parse(lines):
+    """
+    Parser utama: hasilkan tree berupa list of nodes
+    Node bisa berupa string (baris biasa) atau dict {type, body}
+    """
+    i = 0
+    tree = []
+    while i < len(lines):
+        line = lines[i].strip()
+        if not line:
+            i += 1
+            continue
+
+        if line.startswith("hidup("):
+            block, next_i = parse_block(lines, i, end_token=")")
+            tree.append({
+                "type": "hidup",
+                "body": block
+            })
+            i = next_i
+            continue
+
+        if line.startswith("mati("):
+            block, next_i = parse_block(lines, i, end_token=")")
+            tree.append({
+                "type": "mati",
+                "body": block
+            })
+            i = next_i
+            continue
+
+        tree.append(line)
+        i += 1
+
+    return tree
