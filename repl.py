@@ -256,10 +256,28 @@ def run_inline(argv):
     args = argv[1:]
     run_module(cmd, args)
 
+def execute_node(node, env, executor):
+    if isinstance(node, str):
+        return executor(node, env)
+
+    if isinstance(node, dict):
+        if node["type"] == "hidup":
+            for inner in node["body"]:
+                executor(inner, env)
+            return None, False
+
+        if node["type"] == "mati":
+            return None, False
+
+    return None, False
+
 def execute_buffer(buffer, env):
     print("[Jalankan penyangga...]")
-    tree = parse_buffer(buffer)
-    exec_tree(tree, env)
+    tree = parse(buffer)
+    for node in tree:
+        retval, stop = execute_node(node, env, execute_line)
+        if stop:
+            return retval
 
 
 def main():
