@@ -14,6 +14,8 @@ from helpers.masukkan import masukkan_inline
 from colorama import init, Fore, Style
 init(autoreset=True)
 
+from simpleeval import simple_eval
+
 TMP_FILE = ".tmp_repl.ibat"
 env = {}
 
@@ -256,39 +258,83 @@ def run_inline(argv):
     args = argv[1:]
     run_module(cmd, args)
 
-def execute_node(node, env, executor):
-    if isinstance(node, str):
-        return executor(node, env)
-
-    if isinstance(node, dict):
-        if node["type"] == "hidup":
-            for inner in node["body"]:
-                executor(inner, env)
-            return None, False
-
-        if node["type"] == "mati":
-            return None, False
-
-    return None, False
 
 def execute_node(node, env, executor):
     if isinstance(node, str):
         return executor(node, env)
 
-    if isinstance(node, dict):
-        t = node["type"]
+    t = node["type"]
 
-        if t == "hidup":
+    if t == "hidup":
+        for inner in node["body"]:
+            retval, stop = execute_node(inner, env, executor)
+            if stop:
+                return retval, stop
+        return None, False
+
+    if t == "mati":
+        return None, False
+
+    if t == "jika":
+        if simple_eval(node["cond"], names=env):
             for inner in node["body"]:
                 retval, stop = execute_node(inner, env, executor)
                 if stop:
                     return retval, stop
             return None, False
+        for elifnode in node["elifs"]:
+            if simple_eval(elifnode["cond"], names=env):
+                for inner in elifnode["body"]:
+                    retval, stop = execute_node(inner, env, executor)
+                    if stop:
+                        return retval, stop
+                return None, False
+        if node["else"]:
+            for inner in node["else"]:
+                retval, stop = execute_node(inner, env, executor)
+                if stop:
+                    return retval, stop
+        return None, False
 
-        if t == "mati":
-            return None, False
+    if t == "ulangi":
+        header = node["header"].split()
+        if header[0].isdigit():
+            n = int(header[0])
+            for _ in range(n):
+                for inner in node["body"]:
+                    execute_node(inner, env, executor)
+        elif header[0] == "sampai":
+            cond = " ".join(header[1:])
+            while not simple_eval(cond, names=env):
+                for inner in node["body"]:
+                    execute_node(inner, env, executor)
+        elif header[0] == "untuk":
+            var, _, rng = header[1], header[2], header[3]
+            start, end = map(int, rng.split(".."))
+            for i in range(start, end + 1):
+                env[var] = i
+                for inner in node["body"]:
+                    execute_node(inner, env, executor)
+        return None, False
 
     return None, False
+
+
+def execute_tree(tree, env, executor):
+    for node in tree:
+        retval, stop = execute_node(node, env, executor)
+        if stop:
+            return retval
+    return None
+
+
+def execute_buffer(buffer, env):
+    print("[Jalankan penyangga...]")
+    tree = parse(buffer)
+    for node in tree:
+        retval, stop = execute_node(node, env, execute_line)
+        if stop:
+            return retval
 
 
 def main():
