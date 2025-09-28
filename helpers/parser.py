@@ -114,8 +114,8 @@ def exec_tree(nodes, env):
 
 def parse_block(lines, i, end_token=")"):
     """
-    Parse block dimulai dari baris i (sudah di dalam hidup/mati).
-    Akan berhenti kalau ketemu baris berisi end_token.
+    Parse blok multiline (hidup/mati/jika/ulangi).
+    Hasilkan: (list of nodes, next_index)
     """
     block = []
     i += 1
@@ -123,43 +123,38 @@ def parse_block(lines, i, end_token=")"):
         line = lines[i].strip()
         if line == end_token:
             return block, i + 1
-        block.append(line)
-        i += 1
+        node, next_i = parse_line(lines, i)
+        block.append(node)
+        i = next_i
     raise SyntaxError(f"Blok tidak ditutup dengan {end_token}")
 
 
+def parse_line(lines, i):
+    """Parse satu baris, bisa blok atau baris biasa."""
+    line = lines[i].strip()
+
+    if line.startswith("hidup("):
+        block, next_i = parse_block(lines, i, end_token=")")
+        return {"type": "hidup", "body": block}, next_i
+
+    if line.startswith("mati("):
+        block, next_i = parse_block(lines, i, end_token=")")
+        return {"type": "mati", "body": block}, next_i
+
+    # TODO: tambahkan if/ulangi dengan rekursi juga
+    # if line.startswith("jika "): ...
+    # if line.startswith("ulangi "): ...
+
+    # --- Baris biasa ---
+    return line, i + 1
+
+
 def parse(lines):
-    """
-    Parser utama: hasilkan tree berupa list of nodes
-    Node bisa berupa string (baris biasa) atau dict {type, body}
-    """
-    i = 0
+    """Parser utama: hasilkan tree berisi nested nodes"""
     tree = []
+    i = 0
     while i < len(lines):
-        line = lines[i].strip()
-        if not line:
-            i += 1
-            continue
-
-        if line.startswith("hidup("):
-            block, next_i = parse_block(lines, i, end_token=")")
-            tree.append({
-                "type": "hidup",
-                "body": block
-            })
-            i = next_i
-            continue
-
-        if line.startswith("mati("):
-            block, next_i = parse_block(lines, i, end_token=")")
-            tree.append({
-                "type": "mati",
-                "body": block
-            })
-            i = next_i
-            continue
-
-        tree.append(line)
-        i += 1
-
+        node, next_i = parse_line(lines, i)
+        tree.append(node)
+        i = next_i
     return tree
