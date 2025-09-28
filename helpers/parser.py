@@ -112,20 +112,24 @@ def exec_tree(nodes, env):
         i += 1
 
 
-def parse_block(lines, i, end_token=")"):
+def parse_block(lines, i, end_token="selesai", alt_end_tokens=None):
     """
     Parse blok multiline (hidup/mati/jika/ulangi).
-    Hasilkan: (list of nodes, next_index)
+    end_token default 'selesai'.
+    alt_end_tokens bisa dipakai untuk if-chain (jikalain/lainnya).
     """
     block = []
     i += 1
     while i < len(lines):
         line = lines[i].strip()
-        if line == end_token:
-            return block, i + 1
+
+        if line == end_token or (alt_end_tokens and line in alt_end_tokens):
+            return block, i
+
         node, next_i = parse_line(lines, i)
         block.append(node)
         i = next_i
+
     raise SyntaxError(f"Blok tidak ditutup dengan {end_token}")
 
 
@@ -135,22 +139,44 @@ def parse_line(lines, i):
 
     if line.startswith("hidup("):
         block, next_i = parse_block(lines, i, end_token=")")
-        return {"type": "hidup", "body": block}, next_i
+        return {"type": "hidup", "body": block}, next_i + 1
 
     if line.startswith("mati("):
         block, next_i = parse_block(lines, i, end_token=")")
-        return {"type": "mati", "body": block}, next_i
+        return {"type": "mati", "body": block}, next_i + 1
 
-    # TODO: tambahkan if/ulangi dengan rekursi juga
-    # if line.startswith("jika "): ...
-    # if line.startswith("ulangi "): ...
+    if line.startswith("jika "):
+        cond = line[4:].strip()
+        body, next_i = parse_block(lines, i, end_token="selesai",
+                                   alt_end_tokens={"jikalain", "lainnya"})
+        node = {"type": "jika", "cond": cond, "body": body, "elifs": [], "else": []}
 
-    # --- Baris biasa ---
+        while next_i < len(lines):
+            line2 = lines[next_i].strip()
+            if line2.startswith("jikalain "):
+                cond2 = line2[8:].strip()
+                body2, next_i = parse_block(lines, next_i, end_token="selesai",
+                                            alt_end_tokens={"jikalain", "lainnya"})
+                node["elifs"].append({"cond": cond2, "body": body2})
+            elif line2 == "lainnya":
+                body3, next_i = parse_block(lines, next_i, end_token="selesai")
+                node["else"] = body3
+                break
+            else:
+                break
+        return node, next_i + 1
+
+    if line.startswith("ulangi "):
+        header = line.split(maxsplit=1)[1]
+        body, next_i = parse_block(lines, i, end_token="selesai")
+        node = {"type": "ulangi", "header": header, "body": body}
+        return node, next_i + 1
+
     return line, i + 1
 
 
 def parse(lines):
-    """Parser utama: hasilkan tree berisi nested nodes"""
+    """Parser utama: hasilkan tree nested nodes"""
     tree = []
     i = 0
     while i < len(lines):
