@@ -271,13 +271,24 @@ def execute_node(node, env, executor):
 
     return None, False
 
-def execute_buffer(buffer, env):
-    print("[Jalankan penyangga...]")
-    tree = parse(buffer)
-    for node in tree:
-        retval, stop = execute_node(node, env, execute_line)
-        if stop:
-            return retval
+def execute_node(node, env, executor):
+    if isinstance(node, str):
+        return executor(node, env)
+
+    if isinstance(node, dict):
+        t = node["type"]
+
+        if t == "hidup":
+            for inner in node["body"]:
+                retval, stop = execute_node(inner, env, executor)
+                if stop:
+                    return retval, stop
+            return None, False
+
+        if t == "mati":
+            return None, False
+
+    return None, False
 
 
 def main():
