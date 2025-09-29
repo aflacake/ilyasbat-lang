@@ -7,7 +7,7 @@ import subprocess
 from helpers.fungsi import execute_line, call_fungsi_inline, execute_fungsi
 from helpers.jika import parse_if_block, execute_if_block
 from helpers.ulangi import parse_ulangi, execute_ulangi
-from helpers.parser import parse_buffer, exec_tree
+from helpers.parser import parse_buffer, exec_tree, parse
 from helpers.menampilkan import menampilkan_inline
 from helpers.masukkan import masukkan_inline
 
