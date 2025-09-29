@@ -3,9 +3,9 @@
 import sys
 import os
 
-from .fungsi_registry import register_fungsi
-from .parser import parse
-from .fungsi import execute_line
+from helpers.fungsi_registry import register_fungsi
+from helpers.parser import parse
+from helpers.fungsi import execute_line
 
 KEYWORDS = {
     "fungsi": "[FUNGSI]",
@@ -13,6 +13,33 @@ KEYWORDS = {
     "jika": "[JIKA]",
     "menampilkan": "[MENAMPILKAN]",
 }
+
+def register_functions_from_code(code: str):
+    """
+    Cari definisi fungsi dalam kode .ibat dan simpan ke registry.
+    """
+    lines = code.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if line.startswith("fungsi "):
+            header = line[len("fungsi "):].strip()
+            if "(" in header and header.endswith(")"):
+                name, params = header.split("(", 1)
+                name = name.strip()
+                arg_names = [p.strip() for p in params[:-1].split(",") if p.strip()]
+            else:
+                name = header
+                arg_names = []
+
+            body_lines = []
+            i += 1
+            while i < len(lines) and lines[i].strip() != "selesai":
+                body_lines.append(lines[i])
+                i += 1
+
+            register_fungsi(name, arg_names, body_lines)
+        i += 1
 
 def run_module_code(code: str, env):
     """Eksekusi isi kode .ibat agar fungsi terdaftar."""
@@ -60,6 +87,7 @@ def pretty_print(code: str):
             print(f"    {line}")
 
 def main():
+    register_functions_from_code(code)
     from repl import env
     run_module_code(code, env)
 
