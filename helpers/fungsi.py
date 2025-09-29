@@ -45,7 +45,7 @@ def execute_line(line, env, debug=False):
             retval = env.get(expr, None)
         return retval, True
 
-    if "=" in line:
+    if cmd not in ("gema", "jika", "ulangi", "kembalikan") and "=" in line:
         var, expr = map(str.strip, line.split("=", 1))
         try:
             env[var] = simple_eval(expr, names=env)
