@@ -3,7 +3,7 @@
 import sys
 import os
 
-from helpers.fungsi_registry import register_fungsi_def
+from helpers.fungsi_registry import register_fungsi
 from helpers.parser import parse
 from helpers.fungsi import execute_line
 
