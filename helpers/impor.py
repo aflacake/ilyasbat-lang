@@ -3,12 +3,27 @@
 import sys
 import os
 
+from helpers.fungsi_registry import register_fungsi_def
+from helpers.parser import parse
+from helpers.fungsi import execute_line
+
 KEYWORDS = {
     "fungsi": "[FUNGSI]",
     "kalku": "[KALKU]",
     "jika": "[JIKA]",
     "menampilkan": "[MENAMPILKAN]",
 }
+
+def run_module_code(code: str, env):
+    """Eksekusi isi kode .ibat agar fungsi terdaftar."""
+    lines = code.splitlines()
+    tree = parse(lines)
+    for node in tree:
+        if isinstance(node, dict) and node.get("type") == "fungsi":
+            pass
+        else:
+            if isinstance(node, str):
+                execute_line(node, env)
 
 def load_file(modul_path: str) -> str:
     """Kembalikan isi file .ibat sebagai string."""
@@ -45,6 +60,9 @@ def pretty_print(code: str):
             print(f"    {line}")
 
 def main():
+    from repl import env
+    run_module_code(code, env)
+
     if len(sys.argv) < 2:
         print("[Kesalahan: Nama file modul tidak diberikan.]")
         sys.exit(1)
