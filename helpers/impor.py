@@ -87,10 +87,6 @@ def pretty_print(code: str):
             print(f"    {line}")
 
 def main():
-    register_functions_from_code(code)
-    from repl import env
-    run_module_code(code, env)
-
     if len(sys.argv) < 2:
         print("[Kesalahan: Nama file modul tidak diberikan.]")
         sys.exit(1)
@@ -110,6 +106,11 @@ def main():
 
         print("\n[Isi modul]")
         pretty_print(code)
+
+        register_functions_from_code(code)
+
+        from repl import env
+        run_module_code(code, env)
 
     except FileNotFoundError as e:
         print(e)
