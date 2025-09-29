@@ -31,6 +31,13 @@ Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perh
   pip install prompt_toolkit
   ```
 
+## _Package_ Resmi
+- Mendaftarkan paket resmi bagi helpers/impor.py
+  ```
+  cd ilyasbat-lang
+  python -m helpers.impor testing/sapa.ibat
+  ```
+
 ## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
 1. Jalankan CMD sebagai Administrator
