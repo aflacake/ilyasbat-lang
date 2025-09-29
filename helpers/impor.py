@@ -3,9 +3,9 @@
 import sys
 import os
 
-from helpers.fungsi_registry import register_fungsi
-from helpers.parser import parse
-from helpers.fungsi import execute_line
+from .fungsi_registry import register_fungsi
+from .parser import parse
+from .fungsi import execute_line
 
 KEYWORDS = {
     "fungsi": "[FUNGSI]",
