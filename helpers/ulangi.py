@@ -1,117 +1,100 @@
-# helpers/fungsi.py
+# helpers/ulangi.py
 
 import sys
-import os
-import copy
-import re
-from simpleeval import simple_eval
 
-from helpers import jika, ulangi, gema, masukkan
-from helpers.masukkan import masukkan_inline
-
-CACHE_DIR = "cache"
+from helpers.jika import evaluate_condition
 
 
-def _coerce_number(v):
-    if isinstance(v, (int, float)):
-        return v
-    if isinstance(v, str):
-        v = v.strip()
-        try:
-            return int(v)
-        except ValueError:
-            pass
-        try:
-            return float(v)
-        except ValueError:
-            pass
-    return v
+def ulangi_n(count, inner_lines, env, executor):
+    """ulangi n kali"""
+    for i in range(count):
+        env["_i"] = i
+        for line in inner_lines:
+            executor(line, env)
 
 
-def execute_line(line, env, debug=False):
-    """Eksekusi satu baris perintah .ibat dalam scope env."""
-    if not line or line.startswith("KOM"):
-        return None, False
-
-    parts = line.split()
-    cmd, args = parts[0].lower(), parts[1:]
-
-    if debug:
-        print(f"[DEBUG] Jalankan perintah: {cmd} {args}")
-
-    if cmd == "kembalikan":
-        expr = " ".join(args).strip()
-        try:
-            retval = simple_eval(expr, names=env)
-        except Exception:
-            retval = env.get(expr, None)
-        return retval, True
-
-    if cmd not in ("gema", "jika", "ulangi", "kembalikan") and "=" in line:
-        var, expr = map(str.strip, line.split("=", 1))
-        try:
-            env[var] = simple_eval(expr, names=env)
-        except Exception:
-            env[var] = expr
-        return None, False
-
-    if cmd == "jika":
-        return jika.jika_dari_args(args, env, execute_line, debug)
-
-    if cmd == "ulangi":
-        return ulangi.ulangi_dari_args(args, env, execute_line, debug)
-
-    if cmd == "gema":
-        return gema.gema_dari_args(args, env, debug)
-
-    if cmd == "masukkan":
-        return masukkan.masukkan_dari_args(args, env, debug)
-
-    print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
-    return None, False
+def ulangi_sampai(cond_tokens, body_lines, env, executor):
+    """ulangi sampai kondisi bernilai True"""
+    while not evaluate_condition(cond_tokens, env):
+        for line in body_lines:
+            executor(line, env)
 
 
-def execute_fungsi(lines, env, debug=False):
+def ulangi_untuk(var, start, end, body_lines, env, executor):
+    """ulangi untuk var dari start..end"""
+    for i in range(start, end + 1):
+        env[var] = i
+        for line in body_lines:
+            executor(line, env)
+
+
+def parse_ulangi(lines):
     """
-    Eksekusi isi fungsi .ibat
-    - lines: list baris perintah
-    - env: dictionary variabel
-    Return: nilai dari 'kembalikan' (atau None)
+    Normalisasi blok ulangi.
+    Input contoh:
+        ["ulangi 3", "gema Halo", "selesai"]
+        ["ulangi sampai x > 5", "gema Loop", "selesai"]
+        ["ulangi untuk i = 1..3", "gema Hai", "selesai"]
+
+    Output: dict {type, args, body}
     """
-    return_value = None
-    locals_env = copy.deepcopy(env)
+    if not lines:
+        return None
 
-    for raw in lines:
-        line = raw.strip()
-        retval, stop = execute_line(line, locals_env, debug)
-        if stop:
-            return_value = retval
-            break
+    header = lines[0].strip().split()
+    cmd = header[0].lower()
+    if cmd != "ulangi":
+        return None
 
-    return return_value
+    body = [ln for ln in lines[1:] if ln.strip().lower() != "selesai"]
 
-def call_fungsi_inline(name, arg_values, caller_env=None, debug=False):
-    """
-    Panggil fungsi terdefinisi dengan argumen, dalam scope terpisah.
-    """
-    from helpers.fungsi_registry import load_fungsi_def
+    if len(header) >= 2 and header[1].isdigit():
+        return {"type": "n", "count": int(header[1]), "body": body}
 
-    arg_names, body = load_fungsi_def(name)
+    if len(header) >= 3 and header[1].lower() == "sampai":
+        return {"type": "sampai", "cond": header[2:], "body": body}
 
-    if len(arg_values) != len(arg_names):
-        raise ValueError(
-            f"Jumlah argumen untuk fungsi '{name}' salah. "
-            f"Diberikan {len(arg_values)}, seharusnya {len(arg_names)}"
-        )
+    if len(header) >= 5 and header[1].lower() == "untuk":
+        # Format: ulangi untuk i = 1..5
+        try:
+            var = header[2]
+            if header[3] != "=":
+                raise ValueError("Format ulangi untuk harus 'var = start..end'")
+            rng = header[4]
+            start, end = map(int, rng.split(".."))
+            return {"type": "untuk", "var": var, "start": start, "end": end, "body": body}
+        except Exception as e:
+            print(f"[Kesalahan parsing ulangi untuk: {e}]")
+            return None
 
-    # coercion argumen
-    coerced_values = [_coerce_number(v) for v in arg_values]
+    print(f"[Kesalahan] Sintaks ulangi tidak dikenali: {' '.join(header)}")
+    return None
 
-    # siapkan environment lokal
-    locals_env = {}
-    if caller_env:
-        locals_env.update(caller_env)
-    locals_env.update(dict(zip(arg_names, coerced_values)))
 
-    return execute_fungsi(body, locals_env, debug=debug)
+def execute_ulangi(block, env, executor):
+    """Eksekusi blok ulangi hasil parse_ulangi"""
+    if not block:
+        return
+    t = block["type"]
+    if t == "n":
+        ulangi_n(block["count"], block["body"], env, executor)
+    elif t == "sampai":
+        ulangi_sampai(block["cond"], block["body"], env, executor)
+    elif t == "untuk":
+        ulangi_untuk(block["var"], block["start"], block["end"], block["body"], env, executor)
+    else:
+        print(f"[Kesalahan] Jenis ulangi tidak dikenal: {t}")
 
+
+if __name__ == "__main__":
+    # Tes cepat
+    env = {"x": 0}
+
+    def executor(line, e):
+        print("[EKSEKUSI]", line)
+
+    block1 = parse_ulangi(["ulangi 3", "gema Halo", "selesai"])
+    execute_ulangi(block1, env, executor)
+
+    block2 = parse_ulangi(["ulangi untuk i = 1..3", "gema Hai", "selesai"])
+    execute_ulangi(block2, env, executor)
