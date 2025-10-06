@@ -6,6 +6,7 @@ import copy
 from simpleeval import simple_eval
 
 from helpers import jika, ulangi
+from helpers.masukkan import masukkan_inline
 
 CACHE_DIR = "cache"
 
@@ -82,6 +83,14 @@ def execute_line(line, env, debug=False):
 
     print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
     return None, False
+
+    if cmd == "masukkan":
+        if not args:
+            print("[Kesalahan] Sintaks: masukkan <nama_variabel>")
+        else:
+            varname = args[0]
+            masukkan_inline(varname, env)
+        return None, False
 
 
 def execute_fungsi(lines, env, debug=False):
