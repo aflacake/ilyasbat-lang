@@ -167,9 +167,22 @@ def parse_line(lines, i):
         return node, next_i + 1
 
     if line.startswith("ulangi "):
-        header = line.split(maxsplit=1)[1]
+        parts = line.split()
+        if len(parts) >= 3 and parts[1].isdigit():
+            node = {
+                "type": "stmt",
+                "cmd": "ulangi",
+                "args": parts[1:]
+            }
+            return node, i + 1
+
+        header = line.split(maxsplit=1)[1] if len(line.split()) > 1 else ""
         body, next_i = parse_block(lines, i, end_token="selesai")
-        node = {"type": "ulangi", "header": header, "body": body}
+        node = {
+            "type": "ulangi",
+            "header": header,
+            "body": body
+        }
         return node, next_i + 1
 
     return line, i + 1
