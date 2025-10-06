@@ -71,16 +71,8 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "gema":
-        text = " ".join(args)
-
-        for var in env:
-            if f"{{{var}}}" in text:
-                text = text.replace(f"{{{var}}}", str(env[var]))
-
-        if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
-            text = text[1:-1]
-
-        print(text)
+        from helpers.gema import gema_dari_args
+        gema_dari_args(args, env)
         return None, False
 
     if cmd == "masukkan":
