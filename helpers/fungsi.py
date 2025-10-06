@@ -71,17 +71,16 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "gema":
-        teks = " ".join(args)
+        text = " ".join(args)
 
-        if (teks.startswith('"') and teks.endswith('"')) or (teks.startswith("'") and teks.endswith("'")):
-            teks = teks[1:-1]
+        for var in env:
+            if f"{{{var}}}" in text:
+                text = text.replace(f"{{{var}}}", str(env[var]))
 
-        def ganti_var(match):
-            var = match.group(1)
-            return str(env.get(var, f"{{{var}}}"))
+        if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
+            text = text[1:-1]
 
-        teks = re.sub(r"\{(\w+)\}", ganti_var, teks)
-        print(teks)
+        print(text)
         return None, False
 
     if cmd == "masukkan":
