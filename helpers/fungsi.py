@@ -3,6 +3,7 @@
 import sys
 import os
 import copy
+import re
 from simpleeval import simple_eval
 
 from helpers import jika, ulangi
@@ -70,19 +71,18 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "gema":
-        out_parts = []
-        for arg in args:
-            if (arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'")):
-                out_parts.append(arg[1:-1])
-            elif arg in env:
-                out_parts.append(str(env[arg]))
-            else:
-                out_parts.append(arg)
-        print(" ".join(out_parts))
-        return None, False
+        teks = " ".join(args)
 
-    print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
-    return None, False
+        if (teks.startswith('"') and teks.endswith('"')) or (teks.startswith("'") and teks.endswith("'")):
+            teks = teks[1:-1]
+
+        def ganti_var(match):
+            var = match.group(1)
+            return str(env.get(var, f"{{{var}}}"))
+
+        teks = re.sub(r"\{(\w+)\}", ganti_var, teks)
+        print(teks)
+        return None, False
 
     if cmd == "masukkan":
         if not args:
@@ -91,6 +91,9 @@ def execute_line(line, env, debug=False):
             varname = args[0]
             masukkan_inline(varname, env)
         return None, False
+
+    print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
+    return None, False
 
 
 def execute_fungsi(lines, env, debug=False):
