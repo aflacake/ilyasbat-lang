@@ -86,6 +86,23 @@ def execute_ulangi(block, env, executor):
         print(f"[Kesalahan] Jenis ulangi tidak dikenal: {t}")
 
 
+def ulangi_dari_args(args, env, executor, debug=False):
+    """Handler untuk perintah ulangi satu baris (inline)."""
+    if not args:
+        print("[Kesalahan] Sintaks: ulangi <n> <perintah...>")
+        return None, False
+
+    if args[0].isdigit():
+        count = int(args[0])
+        inner = args[1:]
+        for i in range(count):
+            env["_i"] = i
+            executor(" ".join(inner), env, debug)
+        return None, False
+
+    print("[Kesalahan] Format ulangi tidak dikenali (gunakan angka, 'sampai', atau 'untuk').")
+    return None, False
+
 if __name__ == "__main__":
     # Tes cepat
     env = {"x": 0}
