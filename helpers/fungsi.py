@@ -59,13 +59,7 @@ def execute_line(line, env, debug=False):
         return jika.jika_dari_args(args, env, execute_line, debug)
 
     if cmd == "ulangi":
-        # contoh: ulangi <n> gema ...
-        if args and args[0].isdigit():
-            count = int(args[0])
-            inner = args[1:]
-            for i in range(count):
-                execute_line(" ".join(inner), env, debug)
-        return None, False
+        return ulangi.ulangi_dari_args(args, env, execute_line, debug)
 
     if cmd == "gema":
         return gema.gema_dari_args(args, env, debug)
