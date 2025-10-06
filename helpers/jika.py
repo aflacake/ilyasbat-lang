@@ -260,6 +260,25 @@ def execute_if_block(blocks, env, executor):
     execute_condition_blocks(blocks, env, executor)
     return None, False
 
+
+def jika_dari_args(args, env, executor, debug=False):
+    """
+    Handler untuk perintah 'jika' satu baris (inline) atau blok sederhana.
+    """
+    if not args:
+        print("[Kesalahan] Sintaks: jika <kondisi>")
+        return None, False
+
+    ok = evaluate_condition(args, env)
+    if debug:
+        print(f"[DEBUG] Evaluasi jika {' '.join(args)} → {ok}")
+
+    if ok:
+        print("[DEBUG] Kondisi terpenuhi (tapi tidak ada blok untuk dijalankan).")
+    else:
+        print("[DEBUG] Kondisi tidak terpenuhi.")
+    return None, False
+
 if __name__ == "__main__":
     lines = [
         "jika x == 1",
