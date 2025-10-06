@@ -7,7 +7,11 @@ import re
 from simpleeval import simple_eval
 
 from helpers import jika, ulangi, gema, masukkan
+
+from helpers.gema import gema
 from helpers.masukkan import masukkan_inline
+from helpers.jika import evaluate_condition, parse_if_block, execute_if_block
+from helpers.ulangi import parse_ulangi, execute_ulangi
 
 CACHE_DIR = "cache"
 
@@ -26,6 +30,44 @@ def _coerce_number(v):
         except ValueError:
             pass
     return v
+
+
+def execute_builtin(cmd, args, env, execute_line, debug=False):
+    """Router utama untuk perintah bawaan IlyasBat."""
+
+    if cmd == "gema":
+        teks = " ".join(args)
+        gema(teks, env)
+        return None, False
+
+    if cmd == "masukkan":
+        if not args:
+            print("[Kesalahan] Sintaks: masukkan <nama_variabel>")
+            return None, False
+        varname = args[0]
+        try:
+            value = masukkan_inline(varname, env)
+            if value is not None and debug:
+                print(f"[DEBUG] {varname} = {value}")
+        except Exception as e:
+            print(f"[Kesalahan masukkan: {e}]")
+        return None, False
+
+    if cmd == "jika":
+        blocks, _ = parse_if_block(args, 0)
+        execute_if_block(blocks, env, execute_line)
+        return None, False
+
+    if cmd == "ulangi":
+        lines = [" ".join([cmd] + args), "selesai"]
+        block = parse_ulangi(lines)
+        if block:
+            execute_ulangi(block, env, execute_line)
+        else:
+            print("[Kesalahan] Sintaks ulangi tidak dikenali.")
+        return None, False
+
+    return "[Fungsi tidak dikenal]", False
 
 
 def execute_line(line, env, debug=False):
