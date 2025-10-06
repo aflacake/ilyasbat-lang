@@ -76,19 +76,7 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "masukkan":
-        if not args:
-            print("[Kesalahan] Sintaks: masukkan <nama_variabel>")
-            return None, False
-        varname = args[0]
-        try:
-            from helpers.masukkan import masukkan_inline
-            value = masukkan_inline(varname, env)
-            if value is not None:
-                if debug:
-                    print(f"[DEBUG] {varname} = {value}")
-        except Exception as e:
-            print(f"[Kesalahan masukkan: {e}]")
-        return None, False
+        return masukkan.masukkan_dari_args(args, env, debug)
 
     print(f"[Fungsi] Perintah tidak dikenal: {cmd}")
     return None, False
