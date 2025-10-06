@@ -56,11 +56,8 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "jika":
-        # contoh sederhana: hanya 1 kondisi inline
-        if jika.evaluate_condition(args, env):
-            return None, False
-        else:
-            return None, False
+        return jika.jika_dari_args(args, env, execute_line, debug)
+
     if cmd == "ulangi":
         # contoh: ulangi <n> gema ...
         if args and args[0].isdigit():
