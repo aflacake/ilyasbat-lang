@@ -3,7 +3,7 @@
 import sys
 
 def masukkan_inline(varname: str, env: dict):
-    """Digunakan REPL: masukkan nilai dari input() langsung ke env."""
+    """Digunakan REPL atau CLI: masukkan nilai dari input() langsung ke env."""
     try:
         value = input(f"Masukkan nilai untuk {varname}: ")
         env[varname] = value
@@ -11,6 +11,22 @@ def masukkan_inline(varname: str, env: dict):
     except Exception as e:
         print(f"[Kesalahan masukkan: {e}]")
         return None
+
+def masukkan_dari_args(args, env, debug=False):
+    """Handler untuk perintah IlyasBat 'masukkan'."""
+    if not args:
+        print("[Kesalahan] Sintaks: masukkan <nama_variabel>")
+        return None, False
+
+    varname = args[0]
+    try:
+        value = masukkan_inline(varname, env)
+        if value is not None and debug:
+            print(f"[DEBUG] {varname} = {value}")
+    except Exception as e:
+        print(f"[Kesalahan masukkan: {e}]")
+
+    return None, False
 
 def main():
     varname = sys.argv[1] if len(sys.argv) > 1 else None
