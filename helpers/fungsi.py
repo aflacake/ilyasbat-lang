@@ -6,7 +6,7 @@ import copy
 import re
 from simpleeval import simple_eval
 
-from helpers import jika, ulangi
+from helpers import jika, ulangi, gema, masukkan
 from helpers.masukkan import masukkan_inline
 
 CACHE_DIR = "cache"
@@ -71,9 +71,7 @@ def execute_line(line, env, debug=False):
         return None, False
 
     if cmd == "gema":
-        from helpers.gema import gema_dari_args
-        gema_dari_args(args, env)
-        return None, False
+        return gema.gema_dari_args(args, env, debug)
 
     if cmd == "masukkan":
         return masukkan.masukkan_dari_args(args, env, debug)
