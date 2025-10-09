@@ -8,7 +8,7 @@ from simpleeval import simple_eval
 
 from helpers import jika, ulangi, gema, masukkan
 
-from helpers.gema import gema
+from helpers.gema import gema, gema_dari_args
 from helpers.masukkan import masukkan_inline
 from helpers.jika import evaluate_condition, parse_if_block, execute_if_block
 from helpers.ulangi import parse_ulangi, execute_ulangi
@@ -36,8 +36,7 @@ def execute_builtin(cmd, args, env, execute_line, debug=False):
     """Router utama untuk perintah bawaan IlyasBat."""
 
     if cmd == "gema":
-        teks = " ".join(args)
-        gema(teks, env)
+        return gema_dari_args(args, env, debug)
         return None, False
 
     if cmd == "masukkan":
