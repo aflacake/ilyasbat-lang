@@ -64,7 +64,8 @@ def run_module(cmd, args):
     elif cmd == "menampilkan":
         return run_batch_module("menampilkan", args)
     elif cmd == "gema":
-        return run_batch_module("gema", args)
+        from helpers.gema import gema_dari_args
+        return gema_dari_args(args, env)
     elif cmd == "impor":
         return run_batch_module("impor", args)
     elif cmd == "berakhir":
