@@ -339,6 +339,22 @@ def execute_buffer(buffer, env):
 
 
 def main():
+    import sys
+    if not sys.stdin.isatty():
+        for line in sys.stdin:
+            inp = line.strip()
+            if not inp:
+                continue
+            if inp.lower() == "keluar":
+                break
+            parts = inp.split()
+            cmd, args = parts[0], parts[1:]
+            try:
+                run_module(cmd, args)
+            except Exception as e:
+                print(f"[Kesalahan: {e}]")
+        return
+
     print(Fore.MAGENTA + "== IlyasBat Mode REPL ==")
     print(Fore.CYAN + "Ketik 'keluar' untuk mengakhiri.")
     print(Fore.CYAN + "Ketik 'lihat' untuk melihat penyangga.")
