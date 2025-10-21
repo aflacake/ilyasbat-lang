@@ -39,13 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-    val = os.environ.get(expr)
-    if val is not None:
-        print(val)
-    else:
-        print(f"[{expr} tidak ditemukan]")
-
-if __name__ == "__main__":
-    main()
