@@ -69,6 +69,24 @@ def continuation(width, line_number, is_soft_wrap):
 def main():
     global in_jika_mode, jika_buffer
 
+    import sys
+    from repl import run_module, env
+
+    if not sys.stdin.isatty():
+        for line in sys.stdin:
+            inp = line.strip()
+            if not inp:
+                continue
+            if inp.lower() == "keluar":
+                break
+            parts = inp.split()
+            cmd, args = parts[0], parts[1:]
+            try:
+                run_module(cmd, args)
+            except Exception as e:
+                print(f"[Kesalahan: {e}]")
+        return
+
     print("== IlyasBat REPL Lanjutan ==")
     print("Tips:")
     print(" - Ketik 'keluar' untuk keluar")
