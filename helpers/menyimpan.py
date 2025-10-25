@@ -48,9 +48,28 @@ def assign_nested(d, keys, value):
 
 
 def parse_key_path(raw_key):
-    """Pisahkan path seperti 'user.name' atau 'arr[0].field'."""
-    tokens = re.split(r"(?<!\[\d{1,10})\.", raw_key)
-    return tokens
+    """
+    Pisahkan path seperti 'user.name' atau 'arr[0].field' tanpa regex lookbehind.
+    """
+    parts = []
+    current = ""
+    in_bracket = False
+
+    for ch in raw_key:
+        if ch == '.' and not in_bracket:
+            parts.append(current)
+            current = ""
+        else:
+            current += ch
+            if ch == '[':
+                in_bracket = True
+            elif ch == ']':
+                in_bracket = False
+
+    if current:
+        parts.append(current)
+
+    return parts
 
 
 def simpan(raw_key, raw_value, store_file=STORE_FILE):
