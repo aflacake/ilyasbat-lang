@@ -58,5 +58,20 @@ ftype IbatScript="C:\jalur\ke\main.bat" "%%1"
 ```
 Setelah tutup CMD, asosisasi ini hilang.
 
+# Tutorial
+## Pengujian Daftar Perintah di Jalur `tests/`
+Cara menjalankan:
+1. Direkomendasikan\
+   Dari root proyek `ilyasbat-lang`,
+   ```
+   python -m tests.test_[NAMA_FILE]
+   ```
+2. Langsung\
+   Kalau mau langsung jalan,
+   ```
+   python tests/test_[NAMA_FILE].py
+   ```
+   dengan syarat baris `sys.path.append(...)` tetap ada di atas.
+
 # Lisensi
 [Apache-2.0 license](https://github.com/aflacake/ilyasbat-lang/blob/main/LICENSE)
