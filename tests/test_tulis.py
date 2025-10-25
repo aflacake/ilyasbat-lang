@@ -22,7 +22,7 @@ def test_tulis_numerik():
 def test_tulis_ekspresi_dengan_env():
     env = {'x': 10, 'y': 5}
     result = tulis(['x', '+', 'y'], env, return_only=True)
-    assert result == "x + y", f"Output salah: {result}"
+    assert result == "10 + 5", f"Output salah: {result}"
     print("[OKE] test_tulis_ekspresi_dengan_env -> gabungan ekspresi sesuai")
 
 
