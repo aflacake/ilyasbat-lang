@@ -1,6 +1,6 @@
 <p align="right">Bahasa: Indonesia</p>
 
-![IlyasBat.png](https://raw.githubusercontent.com/aflacake/ilyasbat-lang/main/Logo%20IlyasBat.png)
+![IlyasBat.png](https://raw.githubusercontent.com/aflacake/ilyasbat-lang/main/img/Logo%20IlyasBat%20New.png)
 # IlyasBat – Bahasa Prosedural Mini
 
 > Beberapa pengerjaan proyek ini dibantu oleh generative AI.
