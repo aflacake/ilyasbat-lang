@@ -11,8 +11,27 @@ def parse_key_path(raw_key: str):
     """
     Memecah key path seperti: user.profil[0].nama
     Menjadi list: ["user", "profil[0]", "nama"]
+    Tanpa error regex lookbehind.
     """
-    return re.split(r"(?<!\[\d{1,10})\.", raw_key)
+    tokens = []
+    current = ""
+    bracket_depth = 0
+
+    for char in raw_key:
+        if char == "[":
+            bracket_depth += 1
+        elif char == "]":
+            bracket_depth -= 1
+        elif char == "." and bracket_depth == 0:
+            tokens.append(current)
+            current = ""
+            continue
+        current += char
+
+    if current:
+        tokens.append(current)
+    return tokens
+
 
 def resolve_nested(d, keys):
     """
