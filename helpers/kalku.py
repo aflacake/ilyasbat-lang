@@ -95,6 +95,25 @@ def kalkulasi(expr: str, env: dict):
         return None, None
 
 
+def main():
+    import sys
+    from helpers.kalku import kalkulasi
+
+    if len(sys.argv) < 2:
+        print("[Kesalahan: argumen tidak diberikan]")
+        sys.exit(1)
+
+    ekspresi = sys.argv[1]
+    env = {}
+
+    var, hasil = kalkulasi(ekspresi, env)
+    if hasil is not None:
+        print(f"[Kalkulasi] {var} = {hasil}")
+        sys.exit(0)
+    else:
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     import sys
 
