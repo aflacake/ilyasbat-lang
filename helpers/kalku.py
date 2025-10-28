@@ -2,6 +2,7 @@
 
 import re
 import os
+import builtins
 from simpleeval import simple_eval
 from helpers.fungsi import call_fungsi_inline
 
@@ -12,8 +13,8 @@ def kurang(a, b): return a - b
 def kali(a, b): return a * b
 def bagi(a, b): return a / b if b != 0 else float("inf")
 def pangkat(a, b): return a ** b
-def maks(a, b): return max(a, b)
-def min(a, b): return min(a, b)
+def maks(a, b): return builtins.max(a, b)
+def min(a, b): return builtins.min(a, b)
 
 
 def try_parse_number(s):
