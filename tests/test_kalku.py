@@ -61,15 +61,11 @@ def test_kalkulasi_tanpa_assignment():
     print("[OKE] test_kalkulasi_tanpa_assignment -> deteksi format salah valid")
 
 
-def test_kalkulasi_simbol_tidak_dikenal(capsys=None):
+def test_kalkulasi_simbol_tidak_dikenal():
     env = {}
-    var, hasil = kalkulasi("x = abc + 3", env)
-    out = ""
-    if capsys:
-        out = capsys.readouterr().out
-    assert var == "x"
-    assert "Peringatan" in out or hasil is None
-    print("[OKE] test_kalkulasi_simbol_tidak_dikenal -> peringatan muncul")
+    var, result = kalkulasi("x = abc + 3", env)
+    assert var is None and result is None
+    print("[OKE] test_kalkulasi_simbol_tidak_dikenal -> deteksi simbol tidak dikenal valid")
 
 def test_kalkulasi_kesalahan_sintaks():
     var, hasil = kalkulasi("x = tambah(2, )", {})
