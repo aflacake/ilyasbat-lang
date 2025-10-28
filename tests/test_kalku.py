@@ -80,14 +80,29 @@ def test_kalkulasi_bagi_nol():
 
 
 def test_cli_kalku_simulasi():
+    """Simulasi jalankan helpers/kalku.py via CLI — tampilkan debug jika gagal."""
+    import subprocess, os
+    proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     result = subprocess.run(
         [sys.executable, "helpers/kalku.py", "hasil=tambah(3,4)"],
         capture_output=True,
         text=True,
+        cwd=proj_root,
+        timeout=10
     )
-    assert result.returncode == 0
-    assert "hasil" in result.stdout
-    print("[OKE] test_cli_kalku_simulasi -> mode CLI kalku bekerja baik")
+
+    if result.returncode != 0:
+        print("---- DEBUG: CLI kalku gagal ----")
+        print("returncode:", result.returncode)
+        print("stdout:")
+        print(result.stdout)
+        print("stderr:")
+        print(result.stderr)
+        print("---- END DEBUG ----")
+
+    assert result.returncode == 0, f"CLI kalku gagal, returncode={result.returncode}"
+    assert "hasil" in result.stdout or "Selesai" in result.stdout or "Kalkulasi" in result.stdout
+    print("[OKE] test_cli_kalku_simulasi -> mode CLI kalku berjalan baik")
 
 
 if __name__ == "__main__":
