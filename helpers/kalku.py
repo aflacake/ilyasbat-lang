@@ -115,20 +115,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) < 2:
-        print("[Kesalahan: ekspresi tidak diberikan]")
-        sys.exit(1)
-
-    expr = " ".join(sys.argv[1:])
-    env = {}
-
-    var, result = kalkulasi(expr, env)
-
-    if var is not None:
-        env[var] = result
-        print(f"[Selesai] {var} disimpan dengan nilai {result}")
-        print(result)
-    else:
-        sys.exit(1)
+    main()
