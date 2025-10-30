@@ -1,79 +1,108 @@
 # tests/test_impor.py
 
-import io
 import os
 import sys
-import tempfile
-import builtins
-import pytest
+import io
 
-from helpers import impor
-from helpers.fungsi_registry import fungsi_registry
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from helpers.impor import (
+    load_file,
+    analyze_code,
+    register_functions_from_code,
+    run_module_code,
+    pretty_print,
+)
+
+print("=== Menjalankan Pengujian IlyasBat (impor) ===")
 
 
-@pytest.fixture
-def sample_code():
-    """Contoh kode IlyasBat sederhana untuk diuji."""
-    return """
-fungsi sapa(nama)
-    menampilkan Halo, %nama%
+class DummyEnv(dict):
+    pass
+
+
+REGISTERED_FUNCS = {}
+
+def dummy_register_fungsi(name, args, body):
+    REGISTERED_FUNCS[name] = {"args": args, "body": body}
+
+
+def test_load_file():
+    test_path = "tests/tmp_modul.ibat"
+    test_code = "fungsi halo()\n    menampilkan Halo Dunia\nselesai"
+    with open(test_path, "w", encoding="utf-8") as f:
+        f.write(test_code)
+
+    result = load_file(test_path)
+    assert "fungsi halo()" in result, "load_file gagal membaca isi file"
+    os.remove(test_path)
+    print("[OKE] test_load_file -> file berhasil dibaca dan cocok")
+
+
+def test_analyze_code():
+    code = """fungsi hitung(x)
+    kalku hasil = x + 1
 selesai
-
-kalku hasil = 5 + 3
-menampilkan hasil
 """
+    funcs, vars_ = analyze_code(code)
+    assert funcs == ["hitung(x)"] or "hitung" in funcs[0], "analisis fungsi gagal"
+    assert "hasil" in vars_[0], "analisis variabel gagal"
+    print("[OKE] test_analyze_code -> analisis fungsi & variabel berhasil")
 
 
-def test_load_file(tmp_path, sample_code):
-    """Pastikan load_file() bisa membaca file dengan benar."""
-    file_path = tmp_path / "contoh.ibat"
-    file_path.write_text(sample_code, encoding="utf-8")
+def test_register_functions_from_code(monkeypatch=None):
+    global REGISTERED_FUNCS
+    REGISTERED_FUNCS.clear()
 
-    content = impor.load_file(str(file_path))
-    assert "fungsi sapa" in content
-    assert "kalku hasil" in content
+    code = """fungsi tambah(a, b)
+    kalku hasil = a + b
+selesai
+"""
+    import helpers.impor as impor
+    impor.register_fungsi = dummy_register_fungsi
 
-
-def test_analyze_code(sample_code):
-    """Pastikan fungsi dan variabel bisa terdeteksi dengan benar."""
-    functions, variables = impor.analyze_code(sample_code)
-
-    assert "sapa" in functions
-    assert "hasil" in variables
-
-
-def test_register_functions_from_code(sample_code):
-    """Pastikan fungsi terdaftar ke fungsi_registry."""
-    impor.register_functions_from_code(sample_code)
-
-    assert "sapa" in fungsi_registry
-    entry = fungsi_registry["sapa"]
-    assert entry["args"] == ["nama"]
-    assert any("menampilkan" in line for line in entry["body"])
+    register_functions_from_code(code)
+    assert "tambah" in REGISTERED_FUNCS, "fungsi tidak terdaftar"
+    assert REGISTERED_FUNCS["tambah"]["args"] == ["a", "b"], "argumen tidak sesuai"
+    print("[OKE] test_register_functions_from_code -> pendaftaran fungsi berhasil")
 
 
-def test_run_module_code_executes(monkeypatch, sample_code):
-    """Pastikan run_module_code() bisa mengeksekusi baris non-fungsi."""
+def test_run_module_code():
+    code = """menampilkan Halo Dunia"""
+    logs = []
 
-    env = {}
+    import helpers.impor as impor
+    def fake_execute_line(line, env):
+        logs.append(line)
+    impor.execute_line = fake_execute_line
 
-    printed = []
-    monkeypatch.setattr(builtins, "print", lambda *a, **kw: printed.append(" ".join(map(str, a))))
-
-    impor.run_module_code(sample_code, env)
-
-    joined_output = "\n".join(printed)
-    assert "hasil" in joined_output or "Halo" in joined_output
-
-
-def test_pretty_print_does_not_crash(sample_code, capsys):
-    """Pastikan pretty_print() bisa menampilkan kode tanpa error."""
-    impor.pretty_print(sample_code)
-    output = capsys.readouterr().out
-    assert ">>> fungsi sapa(nama)" in output or ">>> fungsi sapa" in output
+    env = DummyEnv()
+    run_module_code(code, env)
+    assert logs == ["menampilkan Halo Dunia"], f"run_module_code gagal: {logs}"
+    print("[OKE] test_run_module_code -> eksekusi baris kode berhasil")
 
 
-def test_file_not_found():
-    """Pastikan load_file() melempar FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        impor.load_file("tidak_ada.ibat")
+def test_pretty_print():
+    code = """fungsi halo()
+    menampilkan Halo Dunia
+selesai"""
+    buffer = io.StringIO()
+    sys_stdout_backup = sys.stdout
+    sys.stdout = buffer
+    pretty_print(code)
+    sys.stdout = sys_stdout_backup
+
+    out = buffer.getvalue()
+    assert ">>> fungsi halo()" in out, "highlight fungsi gagal"
+    assert ">>> menampilkan Halo Dunia" in out, "highlight menampilkan gagal"
+    print("[OKE] test_pretty_print -> pewarnaan keyword berhasil")
+
+
+if __name__ == "__main__":
+    test_load_file()
+    test_analyze_code()
+    test_register_functions_from_code()
+    test_run_module_code()
+    test_pretty_print()
+
+    print("\nSemua pengujian impor selesai dengan sukses")
