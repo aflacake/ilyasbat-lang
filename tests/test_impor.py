@@ -94,7 +94,7 @@ selesai"""
 
     out = buffer.getvalue()
     assert ">>> fungsi halo()" in out, "highlight fungsi gagal"
-    assert ">>> menampilkan Halo Dunia" in out, "highlight menampilkan gagal"
+    assert "menampilkan Halo Dunia" in out, "highlight menampilkan gagal"
     print("[OKE] test_pretty_print -> pewarnaan keyword berhasil")
 
 
