@@ -271,7 +271,7 @@ def jika_dari_args(args, env, executor, debug=False):
 
     ok = evaluate_condition(args, env)
     if debug:
-        print(f"[DEBUG] Evaluasi jika {' '.join(args)} → {ok}")
+        print(f"[DEBUG] Evaluasi jika {' '.join(args)} -> {ok}")
 
     if ok:
         print("[DEBUG] Kondisi terpenuhi (tapi tidak ada blok untuk dijalankan).")
