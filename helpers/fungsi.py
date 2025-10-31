@@ -6,7 +6,7 @@ import copy
 import re
 from simpleeval import simple_eval
 
-from helpers import jika, ulangi, gema, masukkan
+from helpers import jika, ulangi, gema as gema_mod, masukkan
 
 from helpers.gema import gema, gema_dari_args
 from helpers.masukkan import masukkan_inline
@@ -107,7 +107,7 @@ def execute_line(line, env, debug=False):
             return None, True
 
     if cmd == "gema":
-        return gema.gema_dari_args(args, env, debug)
+        return gema_dari_args(args, env, debug)
 
     if cmd == "masukkan":
         return masukkan.masukkan_dari_args(args, env, debug)
@@ -159,4 +159,3 @@ def call_fungsi_inline(name, arg_values, caller_env=None, debug=False):
     locals_env.update(dict(zip(arg_names, coerced_values)))
 
     return execute_fungsi(body, locals_env, debug=debug)
-
