@@ -38,7 +38,7 @@ Kemampuan sederhananya dengan mengimpor modul, mengambil _input_, melakukan perh
   python -m helpers.impor testing/sapa.ibat
   ```
 
-## 1. Manual via _Registry_ (Permanen, untuk seluruh sistem)
+## 1. Manual via _Registry_ (Permanen, untuk Seluruh Sistem)
 Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
 1. Jalankan CMD sebagai Administrator
 2. Tambahkan file _association_:
@@ -50,13 +50,22 @@ Hati-hati! Ini mengubah registry. Cadangkan dulu kalau perlu.
    ```
    ftype IbatScript="C:\Users\anda\proyek\main.bat" "%%1"
    ```
-## 2. Sementara (khusus satu sesi CMD)
+## 2. Sementara (Khusus Satu Sesi CMD)
 Kalau hanya ingin sementara (tanpa ubah _registry_), di CMD:
 ```
 assoc .ibat=IbatScript
 ftype IbatScript="C:\jalur\ke\main.bat" "%%1"
 ```
 Setelah tutup CMD, asosisasi ini hilang.
+
+## Menambahkan Ekstensi `.ibat` Otomatis Dijalankan
+Kalau ingin agar file `.ibat` bisa langsung diklik dua kali di Windows:
+1. Tambahkan _file association_ (bisa manual di registri atau via batch):
+   ```
+   assoc .ibat=IlyasBatFile
+   ftype IlyasBatFile="C:\path\to\ilyasbat.exe" "%1"
+   ```
+2. Sekarang bisa klik dua kali `.ibat` untuk menjalankannya.
 
 # Tutorial
 ## Pengujian Daftar Perintah di Jalur `tests/`
